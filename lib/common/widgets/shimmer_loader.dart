@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:game_hub/common/styles.dart';
 
 /// Shimmer loading widget for featured games section
 class FeaturedGamesShimmer extends StatelessWidget {
