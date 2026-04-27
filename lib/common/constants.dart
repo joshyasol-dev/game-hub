@@ -6,4 +6,4 @@ const String gameLibEndpoint = "api/games";
 
 // Default limits for game fetching
 const int defaultFeaturedLimit = 3;
-const int defaultNewLimit = 10;
+const int defaultNewLimit = 3;

@@ -40,6 +40,7 @@ class Game {
   final String name;
   final String description;
   final String imageUrl;
+  final String gameUrl;
   final DateTime createdAt;
 
   Game({
@@ -49,6 +50,7 @@ class Game {
     required this.name,
     required this.description,
     required this.imageUrl,
+    required this.gameUrl,
     required this.createdAt,
   });
 
@@ -60,6 +62,7 @@ class Game {
       name: json['name'],
       description: json['description'],
       imageUrl: json['image_url'],
+      gameUrl: json['game_url'],
       createdAt: DateTime.parse(json['created_at']),
     );
   }
@@ -72,6 +75,7 @@ class Game {
       'name': name,
       'description': description,
       'image_url': imageUrl,
+      'game_url': gameUrl,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -88,6 +92,7 @@ class FeaturedGame extends Game {
     required super.name,
     required super.description,
     required super.imageUrl,
+    required super.gameUrl,
     required super.createdAt,
   });
 
@@ -100,6 +105,7 @@ class FeaturedGame extends Game {
       name: json['name'],
       description: json['description'],
       imageUrl: json['image_url'],
+      gameUrl: json['game_url'],
       createdAt: DateTime.parse(json['created_at']),
     );
   }
