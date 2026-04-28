@@ -19,7 +19,7 @@ class FeaturedGamesShimmer extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.only(right: 12.w),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24.0),
+                borderRadius: BorderRadius.circular(12.0),
                 color: Colors.grey[300],
               ),
               height: 100.h,

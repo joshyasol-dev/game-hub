@@ -8,4 +8,6 @@ class AppStyles {
   static const Color secondaryColor = Color(0xFF1e4bc2);
   static const Color textDarkModeColor = Colors.white;
   static const Color textLightModeColor = Colors.black87;
+  static const Color darkHeaderNav = Color(0xFF020202);
+  static const Color darkBackground = Color(0xFF131313);
 }

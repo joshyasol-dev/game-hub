@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_hub/presentation/routes/router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,10 +9,14 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   _configureWebViewPlatform();
   ScreenUtil.ensureScreenSize();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp
+  ]);
   runApp(const MyApp());
 }
 

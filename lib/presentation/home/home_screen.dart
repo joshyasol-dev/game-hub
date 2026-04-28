@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_hub/bloc/game/game_bloc.dart';
 import 'package:game_hub/common/styles.dart';
 import 'package:game_hub/common/widgets/game_builder.dart';
 import 'package:game_hub/common/widgets/shimmer_loader.dart';
-import 'package:game_hub/data/models/game_model.dart';
+//import 'package:game_hub/data/models/game_model.dart';
 import 'package:game_hub/data/repository/game_repo.dart';
 import 'package:game_hub/presentation/game/web_game_screen.dart';
 
@@ -19,9 +20,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Static fallback data in case API fails
   static const List<String> staticIcons = ['tekhen', 'nf', 'ph', 'bf'];
-  static const List<String> staticBgs = ['kok_bg', 'bg_basket', 'hammer_bg', 'bingo_bg'];
+  static const List<String> staticBgs = [
+    'kok_bg',
+    'bg_basket',
+    'hammer_bg',
+    'bingo_bg',
+  ];
   static const List<String> staticUrls = [
-    'http://10.80.4.28:5164/',
+    'http://10.80.4.28:5161/',
     'http://10.80.4.28:5165/',
     'http://10.80.4.28:5166/',
     'http://10.80.4.28:5167/',
@@ -30,15 +36,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GameBloc(gameRepository: GameRepository())
-        ..add(const FetchGamesEvent()),
+      create: (context) =>
+          GameBloc(gameRepository: GameRepository())
+            ..add(const FetchGamesEvent()),
       child: Scaffold(
-        backgroundColor: AppStyles.primaryColor,
+        backgroundColor: AppStyles.darkBackground,
         appBar: AppBar(
-          backgroundColor: AppStyles.darkPrimaryColor,
+          backgroundColor: AppStyles.darkHeaderNav,
           title: Text(
             'My Games',
-            style: TextStyle(fontSize: 24.sp, color: AppStyles.textDarkModeColor),
+            style: TextStyle(
+              fontSize: 18.sp,
+              color: AppStyles.darkPrimaryColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           shadowColor: Colors.black12,
         ),
@@ -59,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             image: AssetImage('assets/images/ads.png'),
                             fit: BoxFit.fitWidth,
                           ),
-                          borderRadius: BorderRadius.circular(18.r),
+                          borderRadius: BorderRadius.circular(12.r),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black26,
@@ -67,34 +78,58 @@ class _HomeScreenState extends State<HomeScreen> {
                               offset: Offset(0, 4.h),
                             ),
                           ],
+                          border: Border(
+                            top: BorderSide(
+                              color: AppStyles.darkPrimaryColor,
+                              width: 3.5,
+                            ),
+                          ),
                         ),
                         height: 120.h,
                         width: double.infinity,
                       ),
                       SizedBox(height: 24.h),
                       // Featured Section
-                      Text(
-                        '🔥 Featured',
-                        style: TextStyle(
-                          color: AppStyles.textLightModeColor,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.chess_queen,
+                            color: AppStyles.darkPrimaryColor,
+                          ),
+                          Text(
+                            ' Featured',
+                            style: TextStyle(
+                              color: AppStyles.darkPrimaryColor,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 6.h),
                       _buildFeaturedGamesSection(state),
                       SizedBox(height: 24.h),
                       // Newest Games Section
-                      Text(
-                        '🎰 Newest Games',
-                        style: TextStyle(
-                          color: AppStyles.textLightModeColor,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.dice_5,
+                            color: AppStyles.darkPrimaryColor,
+                            fill: 1.0,
+                          ),
+                          Text(
+                            ' Newest Games',
+                            style: TextStyle(
+                              color: AppStyles.darkPrimaryColor,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 12.h),
                       _buildNewestGamesSection(state),
+                      SizedBox(height: 24.h),
                     ],
                   );
                 },
@@ -114,24 +149,28 @@ class _HomeScreenState extends State<HomeScreen> {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: List.generate(
-            state.gameData.featuredGames.length,
-            (index) {
-              final game = state.gameData.featuredGames[index];
-              final iconIndex = index % staticIcons.length;
-              return buildGameContainer(
-                'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                AppStyles.secondaryColor,
+          children: List.generate(state.gameData.featuredGames.length, (index) {
+            final game = state.gameData.featuredGames[index];
+            final iconIndex = index % staticIcons.length;
+            print(
+              "Game Image Url: ${state.gameData.featuredGames[index].gameUrl}",
+            );
+            return buildGameContainer(
+              state.gameData.featuredGames.isNotEmpty
+                  ? state.gameData.featuredGames[index].imageUrl.toString()
+                  : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
+              AppStyles.darkPrimaryColor,
+              'assets/images/${staticBgs[iconIndex]}.png',
+              () => _navigateToGame(
+                context,
+                state.gameData.featuredGames.isNotEmpty
+                    ? state.gameData.featuredGames[index].imageUrl
+                    : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
                 'assets/images/${staticBgs[iconIndex]}.png',
-                () => _navigateToGame(
-                  context,
-                  'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                  'assets/images/${staticBgs[iconIndex]}.png',
-                  game.gameUrl,
-                ),
-              );
-            },
-          ),
+                game.gameUrl,
+              ),
+            );
+          }),
         ),
       );
     } else {
@@ -187,19 +226,26 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.r),
                 image: DecorationImage(
-                  image: NetworkImage(game.imageUrl),
+                  image: AssetImage(
+                    'assets/images/${staticBgs[iconIndex]}.png',
+                  ),
                   fit: BoxFit.cover,
                   onError: (exception, stackTrace) {},
                 ),
-                color: AppStyles.secondaryColor,
+                color: AppStyles.darkPrimaryColor,
               ),
               child: Center(
-                child: Image.asset(
-                  'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                  height: 60.h,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Icon(Icons.gamepad, size: 60.sp, color: Colors.white),
-                ),
+                child: game.imageUrl.isNotEmpty
+                    ? Image.network(game.imageUrl, height: 80.h)
+                    : Image.asset(
+                        'assets/icons/${staticIcons[iconIndex]}_icon.png',
+                        height: 60.h,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.gamepad,
+                          size: 60.sp,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
           );

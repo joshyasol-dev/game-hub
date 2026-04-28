@@ -68,7 +68,69 @@ class CustomLoader extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate){
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+class RadialProgressPainter extends CustomPainter {
+  final double value;
+  final List<Color> backGroundGradientColors;
+  final double minValue;
+  final double maxValue;
+
+  RadialProgressPainter({
+    required this.value,
+    required this.backGroundGradientColors,
+    required this.minValue,
+    required this.maxValue,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double diameter = min(size.height, size.width);
+    final double radius = diameter / 2;
+    final double centerX = radius;
+    final double centerY = radius;
+
+    const double strokeWidth = 6;
+
+    final Paint progressPaint = Paint()
+      ..shader =
+          SweepGradient(
+            colors: backGroundGradientColors,
+            startAngle: -pi / 2,
+            endAngle: 3 * pi / 2,
+            tileMode: TileMode.repeated,
+          ).createShader(
+            Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+          )
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final Paint progressTrackPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    double startAngle = -pi / 2;
+    double sweepAngle = 2 * pi * value / maxValue;
+
+    canvas.drawCircle(Offset(centerX, centerY), radius, progressTrackPaint);
+
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+      startAngle,
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate){
     return true;
   }
 }

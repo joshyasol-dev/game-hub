@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:game_hub/common/styles.dart';
 
 Widget buildGameContainer(
   String imageLogo,
@@ -12,7 +13,8 @@ Widget buildGameContainer(
     child: Container(
       margin: EdgeInsets.only(right: 12.w),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.0),
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(color: AppStyles.primaryColor, width: 1.5),
         color: color ?? Colors.amber,
         image: imageBackground != null
             ? DecorationImage(
@@ -23,7 +25,11 @@ Widget buildGameContainer(
       ),
       height: 100.h,
       width: 110.w,
-      child: Center(child: Image.asset(imageLogo, height: 80.h)),
+      child: Center(
+        child: imageLogo.contains('https')
+            ? Image.network(imageLogo, height: 80.h,)
+            : Image.asset(imageLogo, height: 60.h),
+      ),
     ),
   );
 }

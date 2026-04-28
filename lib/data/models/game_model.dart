@@ -41,7 +41,7 @@ class Game {
   final String description;
   final String imageUrl;
   final String gameUrl;
-  final DateTime createdAt;
+  final String createdAt;
 
   Game({
     required this.id,
@@ -61,9 +61,9 @@ class Game {
       slug: json['slug'],
       name: json['name'],
       description: json['description'],
-      imageUrl: json['image_url'],
-      gameUrl: json['game_url'],
-      createdAt: DateTime.parse(json['created_at']),
+      imageUrl: json['image_url'] ?? '',
+      gameUrl: json['game_url'] ?? '',
+      createdAt: json['created_at'] ?? '',
     );
   }
 
@@ -76,7 +76,7 @@ class Game {
       'description': description,
       'image_url': imageUrl,
       'game_url': gameUrl,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt,
     };
   }
 }
@@ -99,14 +99,14 @@ class FeaturedGame extends Game {
   factory FeaturedGame.fromJson(Map<String, dynamic> json) {
     return FeaturedGame(
       id: json['id'],
-      totalPlayers: json['total_players'],
+      totalPlayers: json['total_players'] ?? 0,
       gameId: json['game_id'],
       slug: json['slug'],
       name: json['name'],
       description: json['description'],
-      imageUrl: json['image_url'],
-      gameUrl: json['game_url'],
-      createdAt: DateTime.parse(json['created_at']),
+      imageUrl: json['image_url'] ?? '',
+      gameUrl: json['game_url'] ?? '',
+      createdAt: json['created_at'] ?? '',
     );
   }
 

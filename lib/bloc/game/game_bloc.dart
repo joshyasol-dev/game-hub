@@ -27,10 +27,22 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         newLimit: event.newLimit,
       );
 
+      print('API Response Type: ${response.runtimeType}'); // Debug log
       print('API Response: $response'); // Debug log
-      final gameData = GameData.fromJson(response);
+      
+      // Extract data field from the response
+      if (!response.containsKey('data')) {
+        throw Exception('Invalid API response: missing "data" field');
+      }
+
+      final data = response['data'] as Map<String, dynamic>;
+      print('Data field: $data'); // Debug log
+      
+      final gameData = GameData.fromJson(data);
+      print('Game Data: $gameData');
       emit(GameLoaded(gameData));
     } catch (e) {
+      print('Error in _onFetchGames: $e'); // Debug log
       emit(GameError(e.toString()));
     }
   }
