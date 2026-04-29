@@ -290,7 +290,9 @@ class _LoadingScreen extends StatelessWidget {
                     color: Colors.black26,
                     shape: BoxShape.circle,
                   ),
-                  child: Image.asset(icon, height: 64),
+                  child: icon.contains('https')
+                      ? Image.network(icon, height: 64)
+                      : Image.asset(icon, height: 64),
                 ),
                 const SizedBox(height: 24),
                 // Loading text

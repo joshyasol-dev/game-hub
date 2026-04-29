@@ -7,8 +7,8 @@ const String baseUrl = "https://docking-635955947416.asia-east1.run.app/";
 const String gameLibEndpoint = "api/games";
 
 // Default limits for game fetching
-const int defaultFeaturedLimit = 3;
-const int defaultNewLimit = 3;
+const int defaultFeaturedLimit = 5;
+const int defaultNewLimit = 5;
 
 List<Color> gradientColors = const [
   Color(0xffFF0069),

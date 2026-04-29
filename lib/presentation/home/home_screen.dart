@@ -218,7 +218,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return GestureDetector(
             onTap: () => _navigateToGame(
               context,
-              'assets/icons/${staticIcons[iconIndex]}_icon.png',
+              state.gameData.newGames.isNotEmpty
+                  ? state.gameData.newGames[index].imageUrl
+                  : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
               'assets/images/${staticBgs[iconIndex]}.png',
               game.gameUrl,
             ),

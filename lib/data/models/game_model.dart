@@ -11,9 +11,7 @@ class GameData {
 
   factory GameData.fromJson(Map<String, dynamic> json) {
     return GameData(
-      games: (json['games'] as List)
-          .map((e) => Game.fromJson(e))
-          .toList(),
+      games: (json['games'] as List).map((e) => Game.fromJson(e)).toList(),
       featuredGames: (json['featured_games'] as List)
           .map((e) => FeaturedGame.fromJson(e))
           .toList(),
@@ -31,7 +29,6 @@ class GameData {
     };
   }
 }
-      
 
 class Game {
   final int id;
@@ -56,11 +53,11 @@ class Game {
 
   factory Game.fromJson(Map<String, dynamic> json) {
     return Game(
-      id: json['id'],
-      gameId: json['game_id'],
-      slug: json['slug'],
-      name: json['name'],
-      description: json['description'],
+      id: json['id'] ?? 0,
+      gameId: json['game_id'] ?? 0,
+      slug: json['slug'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
       imageUrl: json['image_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
       createdAt: json['created_at'] ?? '',
@@ -98,12 +95,12 @@ class FeaturedGame extends Game {
 
   factory FeaturedGame.fromJson(Map<String, dynamic> json) {
     return FeaturedGame(
-      id: json['id'],
+      id: json['id'] ?? 0,
       totalPlayers: json['total_players'] ?? 0,
-      gameId: json['game_id'],
-      slug: json['slug'],
-      name: json['name'],
-      description: json['description'],
+      gameId: json['game_id'] ?? 0,
+      slug: json['slug'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
       imageUrl: json['image_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
       createdAt: json['created_at'] ?? '',
@@ -111,18 +108,11 @@ class FeaturedGame extends Game {
   }
 
   @override
-  Map<String,dynamic> toJson() =>{
+  Map<String, dynamic> toJson() => {
     ...super.toJson(),
     'total_players': totalPlayers,
   };
 }
-
-
-
-
-
-
-
 
 // List<GameModel> sampleGames = [
 //   GameModel(
