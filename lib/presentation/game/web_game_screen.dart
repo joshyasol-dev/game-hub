@@ -10,12 +10,14 @@ class WebGameScreen extends StatefulWidget {
   final String? backgroundImage;
   final String? loadingIcon;
   final String? customUrl;
+  final String? islandscape;
 
   const WebGameScreen({
     super.key,
     this.backgroundImage,
     this.loadingIcon,
     this.customUrl,
+    this.islandscape,
   });
 
   @override
@@ -104,7 +106,8 @@ class _WebGameScreenState extends State<WebGameScreen> {
   }
 
   bool _shouldUseLandscape() {
-    return widget.loadingIcon?.contains('tekhen') ?? false;
+    //print("is landscape: ${widget.islandscape}");
+    return widget.islandscape?.contains("true") ?? false;
   }
 
   Future<void> _setPortraitFullscreen() async {
@@ -353,7 +356,9 @@ class _LoadingScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(backgroundImage),
+          image: backgroundImage.contains("https")
+              ? NetworkImage(backgroundImage)
+              : AssetImage(backgroundImage),
           fit: BoxFit.cover,
         ),
       ),

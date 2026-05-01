@@ -18,8 +18,14 @@ Widget buildGameContainer(
         color: color ?? Colors.amber,
         image: imageBackground != null
             ? DecorationImage(
-                image: AssetImage(imageBackground),
+                image: imageBackground.contains('https')
+                    ? NetworkImage(imageBackground)
+                    : AssetImage(imageBackground),
                 fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Color(0xFF111111),
+                  BlendMode.softLight,
+                ),
               )
             : null,
       ),
@@ -27,7 +33,7 @@ Widget buildGameContainer(
       width: 110.w,
       child: Center(
         child: imageLogo.contains('https')
-            ? Image.network(imageLogo, height: 80.h,)
+            ? Image.network(imageLogo, height: 60.h)
             : Image.asset(imageLogo, height: 60.h),
       ),
     ),

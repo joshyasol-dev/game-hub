@@ -34,9 +34,11 @@ class Game {
   final int id;
   final int gameId;
   final String slug;
+  final String isLandScape;
   final String name;
   final String description;
   final String imageUrl;
+  final String backgroundImg;
   final String gameUrl;
   final String createdAt;
 
@@ -44,9 +46,11 @@ class Game {
     required this.id,
     required this.gameId,
     required this.slug,
+    required this.isLandScape,
     required this.name,
     required this.description,
     required this.imageUrl,
+    required this.backgroundImg,
     required this.gameUrl,
     required this.createdAt,
   });
@@ -56,9 +60,11 @@ class Game {
       id: json['id'] ?? 0,
       gameId: json['game_id'] ?? 0,
       slug: json['slug'] ?? '',
+      isLandScape: json['is_landscape'] ?? '',
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       imageUrl: json['image_url'] ?? '',
+      backgroundImg: json['background_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
       createdAt: json['created_at'] ?? '',
     );
@@ -69,9 +75,11 @@ class Game {
       'id': id,
       'game_id': gameId,
       'slug': slug,
+      'is_landscape' : isLandScape,
       'name': name,
       'description': description,
       'image_url': imageUrl,
+      'background_url': backgroundImg,
       'game_url': gameUrl,
       'created_at': createdAt,
     };
@@ -86,9 +94,11 @@ class FeaturedGame extends Game {
     required this.totalPlayers,
     required super.gameId,
     required super.slug,
+    required super.isLandScape,
     required super.name,
     required super.description,
     required super.imageUrl,
+    required super.backgroundImg,
     required super.gameUrl,
     required super.createdAt,
   });
@@ -99,9 +109,11 @@ class FeaturedGame extends Game {
       totalPlayers: json['total_players'] ?? 0,
       gameId: json['game_id'] ?? 0,
       slug: json['slug'] ?? '',
+      isLandScape: json['is_landscape'],
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       imageUrl: json['image_url'] ?? '',
+      backgroundImg: json['background_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
       createdAt: json['created_at'] ?? '',
     );

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -27,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'bingo_bg',
   ];
   static const List<String> staticUrls = [
-    'http://10.80.4.28:5161/',
+    'http://10.80.4.28:5164/',
     'http://10.80.4.28:5165/',
     'http://10.80.4.28:5166/',
     'http://10.80.4.28:5167/',
@@ -160,14 +162,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? state.gameData.featuredGames[index].imageUrl.toString()
                   : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
               AppStyles.darkPrimaryColor,
-              'assets/images/${staticBgs[iconIndex]}.png',
+              state.gameData.featuredGames[index].backgroundImg.isNotEmpty
+                  ? state.gameData.featuredGames[index].backgroundImg
+                  : 'assets/images/${staticBgs[iconIndex]}.png',
               () => _navigateToGame(
                 context,
                 state.gameData.featuredGames.isNotEmpty
                     ? state.gameData.featuredGames[index].imageUrl
                     : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                'assets/images/${staticBgs[iconIndex]}.png',
-                game.gameUrl,
+                state.gameData.featuredGames[index].backgroundImg.isNotEmpty
+                    ? state.gameData.featuredGames[index].backgroundImg
+                    : 'assets/images/${staticBgs[iconIndex]}.png',
+                state.gameData.featuredGames[index].gameUrl,
+                state.gameData.featuredGames[index].isLandScape
               ),
             );
           }),
@@ -189,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 'assets/icons/${staticIcons[index]}_icon.png',
                 'assets/images/${staticBgs[index]}.png',
                 staticUrls[index],
+                staticUrls[index].contains("5164")? "true" : "false" 
               ),
             ),
           ),
@@ -209,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisCount: 2,
           mainAxisSpacing: 12.h,
           crossAxisSpacing: 12.w,
-          childAspectRatio: 0.75,
+          //childAspectRatio: 0.50,
         ),
         itemCount: state.gameData.newGames.length,
         itemBuilder: (context, index) {
@@ -221,8 +229,11 @@ class _HomeScreenState extends State<HomeScreen> {
               state.gameData.newGames.isNotEmpty
                   ? state.gameData.newGames[index].imageUrl
                   : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
+                  state.gameData.newGames[index].backgroundImg.isNotEmpty?
+                  state.gameData.newGames[index].backgroundImg :
               'assets/images/${staticBgs[iconIndex]}.png',
               game.gameUrl,
+              state.gameData.newGames[index].isLandScape
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -232,6 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     'assets/images/${staticBgs[iconIndex]}.png',
                   ),
                   fit: BoxFit.cover,
+                  opacity: 10,
                   onError: (exception, stackTrace) {},
                 ),
                 color: AppStyles.darkPrimaryColor,
@@ -272,6 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
               'assets/icons/${staticIcons[index]}_icon.png',
               'assets/images/${staticBgs[index]}.png',
               staticUrls[index],
+              staticUrls[index].contains("5164")? "true" : "false"
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -279,6 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 image: DecorationImage(
                   image: AssetImage('assets/images/${staticBgs[index]}.png'),
                   fit: BoxFit.cover,
+                  opacity: 10,
                 ),
                 color: AppStyles.secondaryColor,
               ),
@@ -301,6 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String loadingIcon,
     String backgroundImage,
     String customUrl,
+    String islandscape,
   ) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -308,6 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
           loadingIcon: loadingIcon,
           backgroundImage: backgroundImage,
           customUrl: customUrl,
+          islandscape: islandscape,
         ),
       ),
     );

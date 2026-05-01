@@ -15,10 +15,10 @@ class GameRepository {
     try {
       final response = await _dioClient.get(
         gameLibEndpoint,
-        queryParameters: {
-          'featured_limit': featuredLimit,
-          'new_limit': newLimit,
-        },
+        // queryParameters: {
+        //   'featured_limit': featuredLimit,
+        //   'new_limit': newLimit,
+        // },
       );
 
       if (response.statusCode == 200) {
