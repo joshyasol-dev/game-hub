@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:game_hub/main.dart';
 
 void main() {
-  testWidgets('Game Hub app loads and displays My Games title', (WidgetTester tester) async {
+  testWidgets('Game Hub app', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
