@@ -1,0 +1,73 @@
+// ignore_for_file: must_be_immutable
+
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:game_hub/common/styles.dart';
+
+class AllGameWidget extends StatelessWidget {
+  String gameUrl;
+  String backgroundImg;
+  String icon;
+  String gameTitle;
+  VoidCallback? ontap;
+  AllGameWidget({
+    super.key,
+    required this.backgroundImg,
+    required this.gameTitle,
+    required this.gameUrl,
+    required this.icon,
+    required this.ontap
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: ontap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        child: Column(
+          children: [
+            SizedBox(height: 8.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  height: 70.h,
+                  width: 80.w,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppStyles.primaryColor,
+                      width: .5.w,
+                    ),
+                    borderRadius: BorderRadius.circular(4.r),
+                    image: DecorationImage(
+                      image: backgroundImg.contains('https')
+                          ? NetworkImage(backgroundImg)
+                          : AssetImage(backgroundImg),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Center(
+                    child: icon.contains('https')
+                        ? Image.network(icon, height: 40.h)
+                        : Image.asset(icon, height: 40.h),
+                  ),
+                ),
+                SizedBox(width: 24.w),
+                Text(
+                  gameTitle,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppStyles.darkPrimaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

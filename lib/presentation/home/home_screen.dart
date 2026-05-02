@@ -6,6 +6,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_hub/bloc/game/game_bloc.dart';
 import 'package:game_hub/common/styles.dart';
+import 'package:game_hub/common/widgets/all_game_widget.dart';
 import 'package:game_hub/common/widgets/game_builder.dart';
 import 'package:game_hub/common/widgets/shimmer_loader.dart';
 //import 'package:game_hub/data/models/game_model.dart';
@@ -132,6 +133,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(height: 12.h),
                       _buildNewestGamesSection(state),
                       SizedBox(height: 24.h),
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.gamepad_2,
+                            color: AppStyles.darkPrimaryColor,
+                            fill: 1.0,
+                          ),
+                          Text(
+                            ' All Games',
+                            style: TextStyle(
+                              color: AppStyles.darkPrimaryColor,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+                      _buildAllGames(state),
+                      SizedBox(height: 24.h),
                     ],
                   );
                 },
@@ -174,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? state.gameData.featuredGames[index].backgroundImg
                     : 'assets/images/${staticBgs[iconIndex]}.png',
                 state.gameData.featuredGames[index].gameUrl,
-                state.gameData.featuredGames[index].isLandScape
+                state.gameData.featuredGames[index].isLandScape,
               ),
             );
           }),
@@ -196,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 'assets/icons/${staticIcons[index]}_icon.png',
                 'assets/images/${staticBgs[index]}.png',
                 staticUrls[index],
-                staticUrls[index].contains("5164")? "true" : "false" 
+                staticUrls[index].contains("5164") ? "true" : "false",
               ),
             ),
           ),
@@ -229,11 +250,11 @@ class _HomeScreenState extends State<HomeScreen> {
               state.gameData.newGames.isNotEmpty
                   ? state.gameData.newGames[index].imageUrl
                   : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                  state.gameData.newGames[index].backgroundImg.isNotEmpty?
-                  state.gameData.newGames[index].backgroundImg :
-              'assets/images/${staticBgs[iconIndex]}.png',
+              state.gameData.newGames[index].backgroundImg.isNotEmpty
+                  ? state.gameData.newGames[index].backgroundImg
+                  : 'assets/images/${staticBgs[iconIndex]}.png',
               game.gameUrl,
-              state.gameData.newGames[index].isLandScape
+              state.gameData.newGames[index].isLandScape,
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -284,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
               'assets/icons/${staticIcons[index]}_icon.png',
               'assets/images/${staticBgs[index]}.png',
               staticUrls[index],
-              staticUrls[index].contains("5164")? "true" : "false"
+              staticUrls[index].contains("5164") ? "true" : "false",
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -305,6 +326,58 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+      );
+    }
+  }
+
+  Widget _buildAllGames(GameState state) {
+    if (state is GameLoading) {
+      return const NewestGamesShimmer();
+    } else if (state is GameLoaded && state.gameData.games.isNotEmpty) {
+      return Column(
+        children: List.generate(state.gameData.games.length, (index) {
+          final game = state.gameData.games[index];
+          final iconIndex = index % staticIcons.length;
+          return AllGameWidget(
+            backgroundImg: game.backgroundImg.isNotEmpty
+                ? game.backgroundImg
+                : 'assets/images/${staticBgs[iconIndex]}.png',
+            gameTitle: game.name,
+            gameUrl: game.gameUrl,
+            icon: game.imageUrl.isNotEmpty
+                ? game.imageUrl
+                : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
+            ontap: () => _navigateToGame(
+              context,
+              state.gameData.games.isNotEmpty
+                  ? state.gameData.games[index].imageUrl
+                  : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
+              state.gameData.games[index].backgroundImg.isNotEmpty
+                  ? state.gameData.games[index].backgroundImg
+                  : 'assets/images/${staticBgs[iconIndex]}.png',
+              game.gameUrl,
+              state.gameData.games[index].isLandScape,
+            ),
+          );
+        }),
+      );
+    } else {
+      return Column(
+        children: List.generate(staticIcons.length, (index) {
+          return AllGameWidget(
+            backgroundImg: 'assets/images/${staticBgs[index]}.png',
+            gameTitle: 'Game ${index + 1}',
+            gameUrl: staticUrls[index],
+            icon: 'assets/icons/${staticIcons[index]}_icon.png',
+            ontap: () => _navigateToGame(
+              context,
+              'assets/icons/${staticIcons[index]}_icon.png',
+              'assets/images/${staticBgs[index]}.png',
+              staticUrls[index],
+              staticUrls[index].contains("5164") ? "true" : "false",
+            ),
+          );
+        }),
       );
     }
   }
