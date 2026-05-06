@@ -57,103 +57,110 @@ class _HomeScreenState extends State<HomeScreen> {
           shadowColor: Colors.black12,
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                // Trigger a refresh by re-fetching games
+                context.read<GameBloc>().add(const FetchGamesEvent());
+              },
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 24.h),
-                      // Ads Banner
-                      Container(
-                        decoration: BoxDecoration(
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/ads.png'),
-                            fit: BoxFit.fitWidth,
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 24.h),
+                        // Ads Banner
+                        Container(
+                          decoration: BoxDecoration(
+                            image: const DecorationImage(
+                              image: AssetImage('assets/images/ads.png'),
+                              fit: BoxFit.fitWidth,
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                            border: Border(
+                              top: BorderSide(
+                                color: AppStyles.darkPrimaryColor,
+                                width: 3.5,
+                              ),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(12.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 8.r,
-                              offset: Offset(0, 4.h),
+                          height: 120.h,
+                          width: double.infinity,
+                        ),
+                        SizedBox(height: 24.h),
+                        // Featured Section
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.chess_queen,
+                              color: AppStyles.darkPrimaryColor,
+                            ),
+                            Text(
+                              ' Featured',
+                              style: TextStyle(
+                                color: AppStyles.darkPrimaryColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
-                          border: Border(
-                            top: BorderSide(
-                              color: AppStyles.darkPrimaryColor,
-                              width: 3.5,
-                            ),
-                          ),
                         ),
-                        height: 120.h,
-                        width: double.infinity,
-                      ),
-                      SizedBox(height: 24.h),
-                      // Featured Section
-                      Row(
-                        children: [
-                          Icon(
-                            LucideIcons.chess_queen,
-                            color: AppStyles.darkPrimaryColor,
-                          ),
-                          Text(
-                            ' Featured',
-                            style: TextStyle(
+                        SizedBox(height: 6.h),
+                        _buildFeaturedGamesSection(state),
+                        SizedBox(height: 24.h),
+                        // Newest Games Section
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.dice_5,
                               color: AppStyles.darkPrimaryColor,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                              fill: 1.0,
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 6.h),
-                      _buildFeaturedGamesSection(state),
-                      SizedBox(height: 24.h),
-                      // Newest Games Section
-                      Row(
-                        children: [
-                          Icon(
-                            LucideIcons.dice_5,
-                            color: AppStyles.darkPrimaryColor,
-                            fill: 1.0,
-                          ),
-                          Text(
-                            ' Newest Games',
-                            style: TextStyle(
+                            Text(
+                              ' Newest Games',
+                              style: TextStyle(
+                                color: AppStyles.darkPrimaryColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+                        _buildNewestGamesSection(state),
+                        SizedBox(height: 24.h),
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.gamepad_2,
                               color: AppStyles.darkPrimaryColor,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                              fill: 1.0,
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-                      _buildNewestGamesSection(state),
-                      SizedBox(height: 24.h),
-                      Row(
-                        children: [
-                          Icon(
-                            LucideIcons.gamepad_2,
-                            color: AppStyles.darkPrimaryColor,
-                            fill: 1.0,
-                          ),
-                          Text(
-                            ' All Games',
-                            style: TextStyle(
-                              color: AppStyles.darkPrimaryColor,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                            Text(
+                              ' All Games',
+                              style: TextStyle(
+                                color: AppStyles.darkPrimaryColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-                      _buildAllGames(state),
-                      SizedBox(height: 24.h),
-                    ],
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+                        _buildAllGames(state),
+                        SizedBox(height: 24.h),
+                      ],
+                    ),
                   );
                 },
               ),
