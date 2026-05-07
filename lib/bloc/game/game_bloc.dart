@@ -2,9 +2,9 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:game_hub/common/constants.dart';
-import 'package:game_hub/data/models/game_model.dart';
-import 'package:game_hub/data/repository/game_repo.dart';
+import 'package:bybet_mini/common/constants.dart';
+import 'package:bybet_mini/data/models/game_model.dart';
+import 'package:bybet_mini/data/repository/game_repo.dart';
 
 part 'game_event.dart';
 part 'game_state.dart';
@@ -14,6 +14,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   GameBloc({required this.gameRepository}) : super(const GameInitial()) {
     on<FetchGamesEvent>(_onFetchGames);
+    on<RefreshGames>(refreshGames);
   }
 
   /// Handler for FetchGamesEvent
@@ -31,7 +32,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
       print('API Response Type: ${response.runtimeType}'); // Debug log
       print('API Response: $response'); // Debug log
-      
+
       // Extract data field from the response
       if (!response.containsKey('data')) {
         throw Exception('Invalid API response: missing "data" field');
@@ -39,12 +40,39 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
       final data = response['data'] as Map<String, dynamic>;
       print('Data field: $data'); // Debug log
-      
+
       final gameData = GameData.fromJson(data);
       print('Game Data: $gameData');
       emit(GameLoaded(gameData));
     } catch (e) {
       print('Error in _onFetchGames: $e'); // Debug log
+      emit(GameError(e.toString()));
+    }
+  }
+
+  Future<void> refreshGames(RefreshGames event, Emitter<GameState> emit) async {
+    emit(const GameLoading());
+    try {
+      if (state is GameLoaded) {
+        final currentState = state as GameLoaded;
+
+        emit(currentState.copyWith(isRefreshing: true));
+
+        final response = await gameRepository.getGames(
+          featuredLimit: defaultFeaturedLimit,
+          newLimit: defaultNewLimit,
+        );
+
+        if(!response.containsKey('data')){
+          throw Exception('Invalid API response');
+        }
+
+        final data = response['data'] as Map<String,dynamic>;
+        final gameData = GameData.fromJson(data);
+
+        emit(GameLoaded(gameData, isRefreshing: false));
+      }
+    } catch (e) {
       emit(GameError(e.toString()));
     }
   }

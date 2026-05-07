@@ -20,11 +20,19 @@ class GameLoading extends GameState {
 /// Success state when games are loaded
 class GameLoaded extends GameState {
   final GameData gameData;
+  final bool isRefreshing;
 
-  const GameLoaded(this.gameData);
+  const GameLoaded(this.gameData, {this.isRefreshing = false});
+
+  GameLoaded copyWith({GameData? gameData, bool? isRefreshing}) {
+    return GameLoaded(
+      gameData ?? this.gameData,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
+    );
+  }
 
   @override
-  List<Object> get props => [gameData];
+  List<Object> get props => [gameData, isRefreshing];
 }
 
 /// Error state when there's an issue fetching games

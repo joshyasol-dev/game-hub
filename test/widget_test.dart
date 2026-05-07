@@ -6,7 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:game_hub/main.dart';
+import 'package:bybet_mini/main.dart';
 
 void main() {
   testWidgets('Game Hub app', (WidgetTester tester) async {

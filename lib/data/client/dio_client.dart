@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:game_hub/common/constants.dart';
+import 'package:bybet_mini/common/constants.dart';
 
 /// A reusable Dio client singleton for making HTTP requests
 class DioClient {

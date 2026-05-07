@@ -1,17 +1,20 @@
 // ignore_for_file: avoid_print
 
+import 'package:bybet_mini/data/models/game_model.dart';
+import 'package:bybet_mini/presentation/search/game_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:game_hub/bloc/game/game_bloc.dart';
-import 'package:game_hub/common/styles.dart';
-import 'package:game_hub/common/widgets/all_game_widget.dart';
-import 'package:game_hub/common/widgets/game_builder.dart';
-import 'package:game_hub/common/widgets/shimmer_loader.dart';
-//import 'package:game_hub/data/models/game_model.dart';
-import 'package:game_hub/data/repository/game_repo.dart';
-import 'package:game_hub/presentation/game/web_game_screen.dart';
+import 'package:bybet_mini/bloc/game/game_bloc.dart';
+import 'package:bybet_mini/common/styles.dart';
+import 'package:bybet_mini/common/widgets/all_game_widget.dart';
+import 'package:bybet_mini/common/widgets/game_builder.dart';
+import 'package:bybet_mini/common/widgets/shimmer_loader.dart';
+//import 'package:bybet_mini/data/models/game_model.dart';
+import 'package:bybet_mini/data/repository/game_repo.dart';
+import 'package:bybet_mini/presentation/game/web_game_screen.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppStyles.darkBackground,
         appBar: AppBar(
           backgroundColor: AppStyles.darkHeaderNav,
+          centerTitle: false,
           title: Text(
             'My Games',
             style: TextStyle(
@@ -54,6 +58,27 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.w600,
             ),
           ),
+          actions: [
+            BlocBuilder<GameBloc, GameState>(
+              builder: (context, state) {
+                return IconButton(
+                  onPressed: () {
+                    if (state is GameLoaded) {
+                      showSearch(
+                        context: context,
+                        delegate: GameSearch(state.gameData),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    LucideIcons.search,
+                    color: AppStyles.darkPrimaryColor,
+                  ),
+                );
+              },
+            ),
+          ],
+          actionsPadding: .only(right: 12.w),
           shadowColor: Colors.black12,
         ),
         body: SafeArea(
@@ -62,10 +87,20 @@ class _HomeScreenState extends State<HomeScreen> {
             child: RefreshIndicator(
               onRefresh: () async {
                 // Trigger a refresh by re-fetching games
-                context.read<GameBloc>().add(const FetchGamesEvent());
+                context.read<GameBloc>().add(RefreshGames());
+                await Future.delayed(const Duration(seconds: 1));
               },
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
+                  if (state is RefreshGames) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          LottieBuilder.asset('assets/animation/refresh.json'),
+                        ],
+                      ),
+                    );
+                  }
                   return SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(

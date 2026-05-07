@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:game_hub/common/constants.dart';
-import 'package:game_hub/common/styles.dart';
-import 'package:game_hub/common/widgets/custom_loader.dart';
+import 'package:bybet_mini/common/constants.dart';
+import 'package:bybet_mini/common/styles.dart';
+import 'package:bybet_mini/common/widgets/custom_loader.dart';
 import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:game_hub/common/styles.dart';
+import 'package:bybet_mini/common/styles.dart';
 
 class CustomLoader extends CustomPainter {
   final double value;

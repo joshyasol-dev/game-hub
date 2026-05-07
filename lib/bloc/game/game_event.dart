@@ -20,3 +20,5 @@ class FetchGamesEvent extends GameEvent {
   @override
   List<Object> get props => [featuredLimit, newLimit];
 }
+
+class RefreshGames extends GameEvent {}

@@ -1,5 +1,5 @@
-import 'package:game_hub/presentation/home/home_screen.dart';
-import 'package:game_hub/presentation/splash/splash_screen.dart';
+import 'package:bybet_mini/presentation/home/home_screen.dart';
+import 'package:bybet_mini/presentation/splash/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(

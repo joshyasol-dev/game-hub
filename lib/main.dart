@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:game_hub/presentation/routes/router.dart';
+import 'package:bybet_mini/presentation/routes/router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bybet_mini/bloc/game/game_bloc.dart';
+import 'package:bybet_mini/data/repository/game_repo.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -17,7 +20,12 @@ void main() async{
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp
   ]);
-  runApp(const MyApp());
+  runApp(
+    BlocProvider(
+      create: (context) => GameBloc(gameRepository: GameRepository()),
+      child: const MyApp(),
+    ),
+  );
 }
 
 void _configureWebViewPlatform() {

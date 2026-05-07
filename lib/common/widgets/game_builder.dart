@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:game_hub/common/styles.dart';
+import 'package:bybet_mini/common/styles.dart';
 
 Widget buildGameContainer(
   String imageLogo,
