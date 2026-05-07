@@ -16,11 +16,28 @@ class GameSearch extends SearchDelegate<GameData?> {
     ...data.games,
   ];
 
+  TextStyle? get searchFieldStryle =>
+      TextStyle(color: AppStyles.textDarkModeColor, fontSize: 14.sp);
+
+  String get seachFieldLabel => 'Search';
+
   @override
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
       scaffoldBackgroundColor: AppStyles.darkBackground,
-      appBarTheme: const AppBarTheme(backgroundColor: AppStyles.darkHeaderNav),
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppStyles.darkHeaderNav,
+        titleTextStyle: TextStyle(
+          fontSize: 10.sp,
+          color: AppStyles.textDarkModeColor,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(
+          fontSize: 14.sp,
+          color: AppStyles.textDarkModeColor,
+        ),
+      ),
     );
   }
 

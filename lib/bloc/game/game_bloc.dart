@@ -14,7 +14,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   GameBloc({required this.gameRepository}) : super(const GameInitial()) {
     on<FetchGamesEvent>(_onFetchGames);
-    on<RefreshGames>(refreshGames);
+    on<RefreshGames>(_refreshGames);
   }
 
   /// Handler for FetchGamesEvent
@@ -50,10 +50,12 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  Future<void> refreshGames(RefreshGames event, Emitter<GameState> emit) async {
+  Future<void> _refreshGames(RefreshGames event, Emitter<GameState> emit) async {
     emit(const GameLoading());
     try {
+      print('Refreshing state: $state');
       if (state is GameLoaded) {
+        print('What state: $state');
         final currentState = state as GameLoaded;
 
         emit(currentState.copyWith(isRefreshing: true));

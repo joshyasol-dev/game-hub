@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print
 
-import 'package:bybet_mini/data/models/game_model.dart';
 import 'package:bybet_mini/presentation/search/game_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             BlocBuilder<GameBloc, GameState>(
               builder: (context, state) {
+                print('What state: $state');
                 return IconButton(
                   onPressed: () {
                     if (state is GameLoaded) {
@@ -86,12 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: RefreshIndicator(
               onRefresh: () async {
+                print('Pulled to refresh');
                 // Trigger a refresh by re-fetching games
                 context.read<GameBloc>().add(RefreshGames());
                 await Future.delayed(const Duration(seconds: 1));
               },
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
+                  print('What state: $state');
                   if (state is RefreshGames) {
                     return Center(
                       child: Column(
