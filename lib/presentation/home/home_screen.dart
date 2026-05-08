@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:bybet_mini/data/models/game_model.dart';
 import 'package:bybet_mini/presentation/search/game_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -94,110 +95,116 @@ class _HomeScreenState extends State<HomeScreen> {
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
                   print('What state: $state');
-                  if (state is RefreshGames) {
-                    return Center(
-                      child: Column(
-                        children: [
-                          LottieBuilder.asset('assets/animation/refresh.json'),
-                        ],
-                      ),
-                    );
-                  }
-                  return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 24.h),
-                        // Ads Banner
-                        Container(
-                          decoration: BoxDecoration(
-                            image: const DecorationImage(
-                              image: AssetImage('assets/images/ads.png'),
-                              fit: BoxFit.fitWidth,
+                  // Show a refresh indicator overlay if refreshing
+                  final bool isRefreshing = state is GameLoaded && (state.isRefreshing ?? false);
+                  return Stack(
+                    children: [
+                      SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 24.h),
+                            // Ads Banner
+                            Container(
+                              decoration: BoxDecoration(
+                                image: const DecorationImage(
+                                  image: AssetImage('assets/images/ads.png'),
+                                  fit: BoxFit.fitWidth,
+                                ),
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 8.r,
+                                    offset: Offset(0, 4.h),
+                                  ),
+                                ],
+                                border: Border(
+                                  top: BorderSide(
+                                    color: AppStyles.darkPrimaryColor,
+                                    width: 3.5,
+                                  ),
+                                ),
+                              ),
+                              height: 120.h,
+                              width: double.infinity,
                             ),
-                            borderRadius: BorderRadius.circular(12.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 8.r,
-                                offset: Offset(0, 4.h),
-                              ),
-                            ],
-                            border: Border(
-                              top: BorderSide(
-                                color: AppStyles.darkPrimaryColor,
-                                width: 3.5,
-                              ),
+                            SizedBox(height: 24.h),
+                            // Featured Section
+                            Row(
+                              children: [
+                                Icon(
+                                  LucideIcons.chess_queen,
+                                  color: AppStyles.darkPrimaryColor,
+                                ),
+                                Text(
+                                  ' Featured',
+                                  style: TextStyle(
+                                    color: AppStyles.darkPrimaryColor,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6.h),
+                            _buildFeaturedGamesSection(state),
+                            SizedBox(height: 24.h),
+                            // Newest Games Section
+                            Row(
+                              children: [
+                                Icon(
+                                  LucideIcons.dice_5,
+                                  color: AppStyles.darkPrimaryColor,
+                                  fill: 1.0,
+                                ),
+                                Text(
+                                  ' Newest Games',
+                                  style: TextStyle(
+                                    color: AppStyles.darkPrimaryColor,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12.h),
+                            _buildNewestGamesSection(state),
+                            SizedBox(height: 24.h),
+                            Row(
+                              children: [
+                                Icon(
+                                  LucideIcons.gamepad_2,
+                                  color: AppStyles.darkPrimaryColor,
+                                  fill: 1.0,
+                                ),
+                                Text(
+                                  ' All Games',
+                                  style: TextStyle(
+                                    color: AppStyles.darkPrimaryColor,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12.h),
+                            _buildAllGames(state),
+                            SizedBox(height: 24.h),
+                          ],
+                        ),
+                      ),
+                      if (isRefreshing)
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black.withOpacity(0.2),
+                            child: Center(
+                              child: LottieBuilder.asset('assets/animations/refresh.json', height: 80),
                             ),
                           ),
-                          height: 120.h,
-                          width: double.infinity,
                         ),
-                        SizedBox(height: 24.h),
-                        // Featured Section
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.chess_queen,
-                              color: AppStyles.darkPrimaryColor,
-                            ),
-                            Text(
-                              ' Featured',
-                              style: TextStyle(
-                                color: AppStyles.darkPrimaryColor,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6.h),
-                        _buildFeaturedGamesSection(state),
-                        SizedBox(height: 24.h),
-                        // Newest Games Section
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.dice_5,
-                              color: AppStyles.darkPrimaryColor,
-                              fill: 1.0,
-                            ),
-                            Text(
-                              ' Newest Games',
-                              style: TextStyle(
-                                color: AppStyles.darkPrimaryColor,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        _buildNewestGamesSection(state),
-                        SizedBox(height: 24.h),
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.gamepad_2,
-                              color: AppStyles.darkPrimaryColor,
-                              fill: 1.0,
-                            ),
-                            Text(
-                              ' All Games',
-                              style: TextStyle(
-                                color: AppStyles.darkPrimaryColor,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        _buildAllGames(state),
-                        SizedBox(height: 24.h),
-                      ],
-                    ),
+                    ],
                   );
                 },
               ),
@@ -212,6 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildFeaturedGamesSection(GameState state) {
     if (state is GameLoading) {
       return const FeaturedGamesShimmer();
+    } else if (state is GameLoaded && state.isRefreshing == true) {
+      return Center(child: LottieBuilder.asset('assets/animations/refresh.json', height: 80));
     } else if (state is GameLoaded && state.gameData.featuredGames.isNotEmpty) {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -240,6 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     : 'assets/images/${staticBgs[iconIndex]}.png',
                 state.gameData.featuredGames[index].gameUrl,
                 state.gameData.featuredGames[index].isLandScape,
+                'featuredGame',
+                state.gameData.featuredGames
               ),
             );
           }),
@@ -262,6 +273,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 'assets/images/${staticBgs[index]}.png',
                 staticUrls[index],
                 staticUrls[index].contains("5164") ? "true" : "false",
+                'featuredGames',
+                []
               ),
             ),
           ),
@@ -274,6 +287,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNewestGamesSection(GameState state) {
     if (state is GameLoading) {
       return const NewestGamesShimmer();
+    } else if (state is GameLoaded && state.isRefreshing == true) {
+      return Center(child: LottieBuilder.asset('assets/animations/refresh.json', height: 80));
     } else if (state is GameLoaded && state.gameData.newGames.isNotEmpty) {
       return GridView.builder(
         shrinkWrap: true,
@@ -299,6 +314,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   : 'assets/images/${staticBgs[iconIndex]}.png',
               game.gameUrl,
               state.gameData.newGames[index].isLandScape,
+              'newestgame',
+              state.gameData.newGames
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -350,6 +367,8 @@ class _HomeScreenState extends State<HomeScreen> {
               'assets/images/${staticBgs[index]}.png',
               staticUrls[index],
               staticUrls[index].contains("5164") ? "true" : "false",
+              'newestgames',
+              []
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -377,6 +396,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildAllGames(GameState state) {
     if (state is GameLoading) {
       return const NewestGamesShimmer();
+    } else if (state is GameLoaded && state.isRefreshing == true) {
+      return Center(child: LottieBuilder.asset('assets/animations/refresh.json', height: 80));
     } else if (state is GameLoaded && state.gameData.games.isNotEmpty) {
       return Column(
         children: List.generate(state.gameData.games.length, (index) {
@@ -401,6 +422,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   : 'assets/images/${staticBgs[iconIndex]}.png',
               game.gameUrl,
               state.gameData.games[index].isLandScape,
+              'allgames',
+              state.gameData.games,
             ),
           );
         }),
@@ -419,6 +442,8 @@ class _HomeScreenState extends State<HomeScreen> {
               'assets/images/${staticBgs[index]}.png',
               staticUrls[index],
               staticUrls[index].contains("5164") ? "true" : "false",
+              'allgames',
+              []
             ),
           );
         }),
@@ -433,6 +458,8 @@ class _HomeScreenState extends State<HomeScreen> {
     String backgroundImage,
     String customUrl,
     String islandscape,
+    String gameCategory,
+    List<Game> gameData,
   ) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -441,6 +468,8 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundImage: backgroundImage,
           customUrl: customUrl,
           islandscape: islandscape,
+          gameCategory: gameCategory,
+          game: gameData,
         ),
       ),
     );

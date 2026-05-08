@@ -1,9 +1,15 @@
 import 'dart:io';
 
+import 'package:bybet_mini/common/styles.dart';
+import 'package:bybet_mini/common/widgets/all_game_widget.dart';
+import 'package:bybet_mini/data/models/game_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebGameScreen extends StatefulWidget {
@@ -11,6 +17,9 @@ class WebGameScreen extends StatefulWidget {
   final String? loadingIcon;
   final String? customUrl;
   final String? islandscape;
+  final String? gameCategory;
+  final List<Game>? game;
+  final void Function(Game selectedGame)? onGameSelected;
 
   const WebGameScreen({
     super.key,
@@ -18,6 +27,9 @@ class WebGameScreen extends StatefulWidget {
     this.loadingIcon,
     this.customUrl,
     this.islandscape,
+    this.gameCategory,
+    this.game,
+    this.onGameSelected,
   });
 
   @override
@@ -31,7 +43,9 @@ class _WebGameScreenState extends State<WebGameScreen> {
   int _progress = 0;
   bool _isLoading = true;
   String? _lastError;
+
   late String _currentUrl;
+
   bool get _isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
 
   /// Get the dynamic URL - prefer custom, fallback to LAN, then emulator
@@ -97,7 +111,9 @@ class _WebGameScreenState extends State<WebGameScreen> {
   /// Handle web resource errors
   void _handleWebResourceError(WebResourceError error) {
     if (!mounted) return;
+
     if (error.isForMainFrame != true) return;
+
     setState(() {
       _isLoading = false;
       _lastError =
@@ -131,7 +147,7 @@ class _WebGameScreenState extends State<WebGameScreen> {
   Future<void> _exitWebView() async {
     await _restorePortraitMode();
     if (mounted) {
-      Navigator.of(context).pop();
+      Navigator.pop(context);
     }
   }
 
@@ -156,106 +172,140 @@ class _WebGameScreenState extends State<WebGameScreen> {
     super.dispose();
   }
 
+  Future<void> openGamesDialog() async {
+    final selectedGame = await showGames(context, widget.game ?? []);
+
+    if (!mounted) return;
+
+    if (selectedGame == null) return;
+
+    /// updated current url
+    _currentUrl = selectedGame.gameUrl;
+
+    await _reloadCurrentUrl();
+  }
+
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: _controller == null
-                ? const Center(
-                    child: Text('WebView is only supported on Android/iOS.'),
-                  )
-                : WebViewWidget(
-                    controller: _controller!,
-                    gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-                      Factory<OneSequenceGestureRecognizer>(
-                        EagerGestureRecognizer.new,
-                      ),
-                    },
-                  ),
-          ),
-          if (_isLoading)
+      body: SafeArea(
+        child: Stack(
+          children: [
             Positioned.fill(
-              child: IgnorePointer(
-                child: _LoadingScreen(
-                  backgroundImage:
-                      widget.backgroundImage ?? 'assets/images/hammer_bg.png',
-                  icon: widget.loadingIcon!.isNotEmpty
-                      ? widget.loadingIcon!
-                      : 'assets/icons/bf_icon.png',
-                  progress: _progress,
+              child: _controller == null
+                  ? const Center(
+                      child: Text('WebView is only supported on Android/iOS.'),
+                    )
+                  : WebViewWidget(
+                      controller: _controller!,
+                      gestureRecognizers:
+                          <Factory<OneSequenceGestureRecognizer>>{
+                            Factory<OneSequenceGestureRecognizer>(
+                              EagerGestureRecognizer.new,
+                            ),
+                          },
+                    ),
+            ),
+            if (_isLoading)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: _LoadingScreen(
+                    backgroundImage:
+                        widget.backgroundImage ?? 'assets/images/hammer_bg.png',
+                    icon: widget.loadingIcon!.isNotEmpty
+                        ? widget.loadingIcon!
+                        : 'assets/icons/bf_icon.png',
+                    progress: _progress,
+                  ),
                 ),
               ),
-            ),
-          if (_lastError != null)
-            Positioned.fill(
-              child: ColoredBox(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                          size: 40,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _lastError!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Current URL: $_currentUrl',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        FilledButton(
-                          onPressed: _reloadCurrentUrl,
-                          child: const Text('Retry'),
-                        ),
-                        if (Platform.isAndroid &&
-                            _currentUrl != _emulatorGameUrl)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: OutlinedButton(
-                              onPressed: _switchToEmulatorUrl,
-                              child: const Text('Use emulator URL (10.0.2.2)'),
-                            ),
+            if (_lastError != null)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 40,
                           ),
-                      ],
+                          const SizedBox(height: 12),
+                          Text(
+                            _lastError!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Current URL: $_currentUrl',
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          FilledButton(
+                            onPressed: _reloadCurrentUrl,
+                            child: const Text('Retry'),
+                          ),
+                          if (Platform.isAndroid &&
+                              _currentUrl != _emulatorGameUrl)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: OutlinedButton(
+                                onPressed: _switchToEmulatorUrl,
+                                child: const Text(
+                                  'Use emulator URL (10.0.2.2)',
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          if (_isLoading)
+            if (_isLoading)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                child: LinearProgressIndicator(value: _progress / 100),
+              ),
             Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              child: LinearProgressIndicator(value: _progress / 100),
-            ),
-          Positioned(
-            top: topPadding + 8,
-            left: 12,
-            child: Material(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(999),
-              child: IconButton(
-                tooltip: 'Exit',
-                onPressed: _exitWebView,
-                icon: const Icon(Icons.close, color: Colors.white),
+              top: topPadding + 8,
+              left: 12,
+              child: Material(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(999),
+                child: IconButton(
+                  tooltip: 'Exit',
+                  onPressed: _exitWebView,
+                  icon: const Icon(Icons.close, color: Colors.white),
+                ),
               ),
             ),
+          ],
+        ),
+      ),
+      floatingActionButton: GestureDetector(
+        onTap: openGamesDialog,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: .symmetric(horizontal: 12.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppStyles.darkPrimaryColor,
           ),
-        ],
+          child: Icon(
+            LucideIcons.gamepad_2,
+            size: 28.sp,
+            color: AppStyles.textDarkModeColor,
+          ),
+        ),
       ),
     );
   }
@@ -367,4 +417,83 @@ class _LoadingScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+//Dialog to select other games.
+Future<Game?> showGames(BuildContext context, List<Game> games) {
+  return showDialog<Game>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        backgroundColor: AppStyles.darkBackground,
+        titleTextStyle: TextStyle(
+          fontSize: 16.sp,
+          color: AppStyles.darkPrimaryColor,
+          fontWeight: FontWeight.w600,
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Game List', style: TextStyle(fontSize: 14.sp)),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(dialogContext);
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding: .symmetric(horizontal: 4.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(LucideIcons.x, color: AppStyles.textDarkModeColor),
+              ),
+            ),
+          ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(12.r),
+        ),
+        contentPadding: .zero,
+        content: SizedBox(
+          width: 320.w,
+          height: 260.h,
+          child: ListView.separated(
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                leading: Container(
+                  width: 50.w,
+                  height: 80.h,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppStyles.darkPrimaryColor,
+                      width: 3.w,
+                    ),
+                    borderRadius: BorderRadius.circular(4.r),
+                    image: DecorationImage(
+                      image: NetworkImage(games[index].imageUrl),
+                    ),
+                  ),
+                ),
+                title: Text(
+                  games[index].name,
+                  style: TextStyle(color: AppStyles.darkPrimaryColor),
+                ),
+                onTap: () {
+                  Navigator.pop(dialogContext, games);
+                  //Navigator.of(context).pop();
+                  //webViewController
+                },
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(height: 12.w);
+            },
+            itemCount: games.length,
+          ),
+        ),
+      );
+    },
+    barrierDismissible: false,
+  );
 }
