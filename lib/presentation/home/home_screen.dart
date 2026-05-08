@@ -304,9 +304,9 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.r),
                 image: DecorationImage(
-                  image: AssetImage(
-                    'assets/images/${staticBgs[iconIndex]}.png',
-                  ),
+                  image: game.backgroundImg.isNotEmpty
+                      ? NetworkImage(game.backgroundImg)
+                      : AssetImage('assets/images/${staticBgs[iconIndex]}.png'),
                   fit: BoxFit.cover,
                   opacity: 10,
                   onError: (exception, stackTrace) {},

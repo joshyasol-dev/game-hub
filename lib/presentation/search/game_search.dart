@@ -8,16 +8,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class GameSearch extends SearchDelegate<GameData?> {
   final GameData data;
 
-  GameSearch(this.data);
+  GameSearch(this.data)
+    : super(
+        searchFieldStyle: TextStyle(
+          color: AppStyles.textDarkModeColor,
+          fontSize: 14.sp,
+        ),
+      );
 
-  List<Game> get searchableGames => [
-    ...data.featuredGames,
-    ...data.newGames,
-    ...data.games,
-  ];
+  List<Game> get searchableGames {
+    final allGames = [...data.featuredGames, ...data.newGames, ...data.games];
+    // Remove duplicates by name
+    final uniqueGames = {for (var game in allGames) game.name: game};
+    return uniqueGames.values.toList();
+  }
 
   TextStyle? get searchFieldStryle =>
-      TextStyle(color: AppStyles.textDarkModeColor, fontSize: 14.sp);
+      TextStyle(color: AppStyles.darkPrimaryColor, fontSize: 14.sp);
 
   String get seachFieldLabel => 'Search';
 
@@ -29,13 +36,22 @@ class GameSearch extends SearchDelegate<GameData?> {
         backgroundColor: AppStyles.darkHeaderNav,
         titleTextStyle: TextStyle(
           fontSize: 10.sp,
-          color: AppStyles.textDarkModeColor,
+          color: AppStyles.darkPrimaryColor,
         ),
+        iconTheme: IconThemeData(color: AppStyles.darkPrimaryColor),
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: AppStyles.darkPrimaryColor,
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(
           fontSize: 14.sp,
           color: AppStyles.textDarkModeColor,
+        ),
+        outlineBorder: BorderSide(color: AppStyles.darkPrimaryColor),
+        focusColor: AppStyles.darkPrimaryColor,
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppStyles.darkPrimaryColor),
         ),
       ),
     );
@@ -65,19 +81,23 @@ class GameSearch extends SearchDelegate<GameData?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    // Remove duplicates already handled in searchableGames
     final suggestions = searchableGames.where((game) {
       return game.name.toLowerCase().contains(query.toLowerCase());
     }).toList();
-
     return gameList(suggestions);
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    final results = searchableGames.where((game) {
+    // Remove duplicates by name from all games
+    final allGames = [...data.featuredGames, ...data.newGames, ...data.games];
+    final uniqueGames = {
+      for (var game in allGames) game.name: game,
+    }.values.toList();
+    final results = uniqueGames.where((game) {
       return game.name.toLowerCase().contains(query.toLowerCase());
     }).toList();
-
     return gameList(results);
   }
 
@@ -85,24 +105,19 @@ class GameSearch extends SearchDelegate<GameData?> {
     if (games.isEmpty) {
       return Center(child: Text('No games found.'));
     }
-    return SingleChildScrollView(
-      child: Column(
-        children: List.generate(
-          games.length,
-          (index) => Column(
-            children: [
-              AllGameWidget(
-                backgroundImg: games[index].backgroundImg,
-                gameTitle: games[index].name,
-                gameUrl: games[index].gameUrl,
-                icon: games[index].imageUrl,
-                ontap: () {},
-              ),
-              SizedBox(height: 12.h),
-            ],
-          ),
-        ),
-      ),
+    return ListView.separated(
+      itemBuilder: (context, index) {
+        final game = games[index];
+        return AllGameWidget(
+          backgroundImg: game.backgroundImg,
+          gameTitle: game.name,
+          gameUrl: game.gameUrl,
+          icon: game.imageUrl,
+          ontap: () {},
+        );
+      },
+      separatorBuilder: (_, _) => SizedBox(height: 12.h),
+      itemCount: games.length,
     );
   }
 }

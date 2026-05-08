@@ -51,13 +51,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   }
 
   Future<void> _refreshGames(RefreshGames event, Emitter<GameState> emit) async {
-    emit(const GameLoading());
     try {
-      print('Refreshing state: $state');
       if (state is GameLoaded) {
-        print('What state: $state');
         final currentState = state as GameLoaded;
-
+        // Set isRefreshing to true to show refresh indicator
         emit(currentState.copyWith(isRefreshing: true));
 
         final response = await gameRepository.getGames(
@@ -65,17 +62,32 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           newLimit: defaultNewLimit,
         );
 
-        if(!response.containsKey('data')){
+        if (!response.containsKey('data')) {
           throw Exception('Invalid API response');
         }
 
-        final data = response['data'] as Map<String,dynamic>;
+        final data = response['data'] as Map<String, dynamic>;
         final gameData = GameData.fromJson(data);
 
         emit(GameLoaded(gameData, isRefreshing: false));
+        print('What state: $state');
+      } else {
+        // If not already loaded, fallback to full reload
+        emit(const GameLoading());
+        final response = await gameRepository.getGames(
+          featuredLimit: defaultFeaturedLimit,
+          newLimit: defaultNewLimit,
+        );
+        if (!response.containsKey('data')) {
+          throw Exception('Invalid API response');
+        }
+        final data = response['data'] as Map<String, dynamic>;
+        final gameData = GameData.fromJson(data);
+        emit(GameLoaded(gameData));
       }
     } catch (e) {
       emit(GameError(e.toString()));
     }
+    print('Current state: $state');
   }
 }
