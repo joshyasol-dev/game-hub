@@ -39,13 +39,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       }
 
       final data = response['data'] as Map<String, dynamic>;
-      print('Data field: $data'); // Debug log
+      //print('Data field: $data'); // Debug log
 
       final gameData = GameData.fromJson(data);
-      print('Game Data: $gameData');
+      //print('Game Data: $gameData');
       emit(GameLoaded(gameData));
     } catch (e) {
-      print('Error in _onFetchGames: $e'); // Debug log
+      //print('Error in _onFetchGames: $e'); // Debug log
       emit(GameError(e.toString()));
     }
   }
@@ -70,7 +70,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         final gameData = GameData.fromJson(data);
 
         emit(GameLoaded(gameData, isRefreshing: false));
-        print('What state: $state');
+        //print('What state: $state');
       } else {
         // If not already loaded, fallback to full reload
         emit(const GameLoading());

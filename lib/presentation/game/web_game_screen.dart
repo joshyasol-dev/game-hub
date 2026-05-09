@@ -1,7 +1,8 @@
+// ignore_for_file: invalid_null_aware_operator, deprecated_member_use
+
 import 'dart:io';
 
 import 'package:bybet_mini/common/styles.dart';
-import 'package:bybet_mini/common/widgets/all_game_widget.dart';
 import 'package:bybet_mini/data/models/game_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -9,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebGameScreen extends StatefulWidget {
@@ -45,6 +45,8 @@ class _WebGameScreenState extends State<WebGameScreen> {
   String? _lastError;
 
   late String _currentUrl;
+
+  bool? _screenOrientation; // null means use widget.islandscape
 
   bool get _isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
 
@@ -122,8 +124,11 @@ class _WebGameScreenState extends State<WebGameScreen> {
   }
 
   bool _shouldUseLandscape() {
-    //print("is landscape: ${widget.islandscape}");
-    return widget.islandscape?.contains("true") ?? false;
+    // If _screenOrientation is set (from game selection), use it. Otherwise, fallback to widget.islandscape.
+    if (_screenOrientation != null) {
+      return _screenOrientation!;
+    }
+    return widget.islandscape?.toLowerCase().contains('true') ?? false;
   }
 
   Future<void> _setPortraitFullscreen() async {
@@ -131,6 +136,8 @@ class _WebGameScreenState extends State<WebGameScreen> {
     final orientations = isLandscape
         ? [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]
         : [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown];
+
+    debugPrint("Screen Orientation: $orientations");
 
     await SystemChrome.setPreferredOrientations(orientations);
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -176,13 +183,20 @@ class _WebGameScreenState extends State<WebGameScreen> {
     final selectedGame = await showGames(context, widget.game ?? []);
 
     if (!mounted) return;
-
     if (selectedGame == null) return;
 
-    /// updated current url
+    // Update current url
     _currentUrl = selectedGame.gameUrl;
 
+    // Update orientation based on selected game, fallback to portrait if invalid
+    final parsed = selectedGame.isLandScape?.toString().toLowerCase();
+    final isLandscape = parsed == 'true';
+    setState(() {
+      _screenOrientation = isLandscape;
+    });
+    //print("Is LandScape: $parsed");
     await _reloadCurrentUrl();
+    await _setPortraitFullscreen();
   }
 
   @override
@@ -295,14 +309,16 @@ class _WebGameScreenState extends State<WebGameScreen> {
         onTap: openGamesDialog,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: .symmetric(horizontal: 12.w, vertical: 12.h),
+          padding: widget.islandscape == 'true'
+              ? .symmetric(horizontal: 4.w, vertical: 4.h)
+              : .symmetric(horizontal: 12.w, vertical: 12.h),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppStyles.darkPrimaryColor,
+            color: AppStyles.darkPrimaryColor.withOpacity(0.6),
           ),
           child: Icon(
             LucideIcons.gamepad_2,
-            size: 28.sp,
+            size: widget.islandscape =='true'? 16.sp : 24.sp,
             color: AppStyles.textDarkModeColor,
           ),
         ),
@@ -424,17 +440,19 @@ Future<Game?> showGames(BuildContext context, List<Game> games) {
   return showDialog<Game>(
     context: context,
     builder: (dialogContext) {
+      final gamed = games.where((game) => game.isMobile == 'True').toList();
+      final isLandscape = MediaQuery.of(dialogContext).orientation == Orientation.landscape;
       return AlertDialog(
         backgroundColor: AppStyles.darkBackground,
         titleTextStyle: TextStyle(
-          fontSize: 16.sp,
+          fontSize: isLandscape? 12.sp : 16.sp,
           color: AppStyles.darkPrimaryColor,
           fontWeight: FontWeight.w600,
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Game List', style: TextStyle(fontSize: 14.sp)),
+            Text('Game List', style: TextStyle(fontSize: isLandscape? 8.sp : 14.sp)),
             GestureDetector(
               onTap: () {
                 Navigator.pop(dialogContext);
@@ -454,42 +472,43 @@ Future<Game?> showGames(BuildContext context, List<Game> games) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(12.r),
         ),
-        contentPadding: .zero,
+        contentPadding: .symmetric(vertical: 12.h,horizontal: 24.w),
         content: SizedBox(
-          width: 320.w,
+          width:  isLandscape? 160.w : 320.w,
           height: 260.h,
           child: ListView.separated(
-            itemBuilder: (BuildContext context, int index) {
+            itemBuilder: (BuildContext itemContext, int index) {
+              final gameList = gamed[index];
               return ListTile(
                 leading: Container(
-                  width: 50.w,
+                  width: isLandscape? 25.w: 50.w,
                   height: 80.h,
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: AppStyles.darkPrimaryColor,
-                      width: 3.w,
+                      width: isLandscape? 2.w : 3.w,
                     ),
                     borderRadius: BorderRadius.circular(4.r),
                     image: DecorationImage(
-                      image: NetworkImage(games[index].imageUrl),
+                      image: NetworkImage(gameList.imageUrl),
                     ),
                   ),
                 ),
                 title: Text(
-                  games[index].name,
+                  gameList.name,
                   style: TextStyle(color: AppStyles.darkPrimaryColor),
                 ),
                 onTap: () {
-                  Navigator.pop(dialogContext, games);
-                  //Navigator.of(context).pop();
-                  //webViewController
+                  if (Navigator.canPop(dialogContext)) {
+                    Navigator.pop(dialogContext, gamed[index]);
+                  }
                 },
               );
             },
             separatorBuilder: (BuildContext context, int index) {
               return SizedBox(height: 12.w);
             },
-            itemCount: games.length,
+            itemCount: gamed.length,
           ),
         ),
       );

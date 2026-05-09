@@ -35,6 +35,7 @@ class Game {
   final int gameId;
   final String slug;
   final String isLandScape;
+  final String isMobile;
   final String name;
   final String description;
   final String imageUrl;
@@ -47,6 +48,7 @@ class Game {
     required this.gameId,
     required this.slug,
     required this.isLandScape,
+    required this.isMobile,
     required this.name,
     required this.description,
     required this.imageUrl,
@@ -67,6 +69,7 @@ class Game {
       backgroundImg: json['background_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
       createdAt: json['created_at'] ?? '',
+      isMobile: json['is_mobile'] ?? '',
     );
   }
 
@@ -75,13 +78,14 @@ class Game {
       'id': id,
       'game_id': gameId,
       'slug': slug,
-      'is_landscape' : isLandScape,
+      'is_landscape': isLandScape,
       'name': name,
       'description': description,
       'image_url': imageUrl,
       'background_url': backgroundImg,
       'game_url': gameUrl,
       'created_at': createdAt,
+      'is_mobile': isMobile
     };
   }
 }
@@ -101,6 +105,7 @@ class FeaturedGame extends Game {
     required super.backgroundImg,
     required super.gameUrl,
     required super.createdAt,
+    required super.isMobile,
   });
 
   factory FeaturedGame.fromJson(Map<String, dynamic> json) {
@@ -116,6 +121,7 @@ class FeaturedGame extends Game {
       backgroundImg: json['background_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
       createdAt: json['created_at'] ?? '',
+      isMobile: json['is_mobile'] ?? '',
     );
   }
 

@@ -9,6 +9,7 @@ class AllGameWidget extends StatelessWidget {
   String backgroundImg;
   String icon;
   String gameTitle;
+  String desc;
   VoidCallback? ontap;
   AllGameWidget({
     super.key,
@@ -16,7 +17,8 @@ class AllGameWidget extends StatelessWidget {
     required this.gameTitle,
     required this.gameUrl,
     required this.icon,
-    required this.ontap
+    required this.ontap,
+    required this.desc,
   });
 
   @override
@@ -27,10 +29,13 @@ class AllGameWidget extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(height: 8.h),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   height: 70.h,
@@ -55,13 +60,35 @@ class AllGameWidget extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 24.w),
-                Text(
-                  gameTitle,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppStyles.darkPrimaryColor,
-                  ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      gameTitle,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppStyles.darkPrimaryColor,
+                      ),
+                    ),
+                    SizedBox(height: 12.h,),
+                    SizedBox(
+                      width: 200.w,
+                      child: Text(
+                        desc,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppStyles.darkPrimaryColor,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        softWrap: false,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

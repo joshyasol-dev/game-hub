@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: deprecated_member_use, dead_null_aware_expression, dead_code, avoid_print
 
 import 'package:bybet_mini/data/models/game_model.dart';
 import 'package:bybet_mini/presentation/search/game_search.dart';
@@ -50,18 +50,23 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           backgroundColor: AppStyles.darkHeaderNav,
           centerTitle: false,
-          title: Text(
-            'My Games',
-            style: TextStyle(
-              fontSize: 18.sp,
-              color: AppStyles.darkPrimaryColor,
-              fontWeight: FontWeight.w600,
-            ),
+          title: Row(
+            children: [
+              Image.asset('assets/images/bybet-logo-dark.png', height: 24.h),
+              Text(
+                '  mini',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: AppStyles.darkPrimaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
           actions: [
             BlocBuilder<GameBloc, GameState>(
               builder: (context, state) {
-                print('What state: $state');
+                //print('What state: $state');
                 return IconButton(
                   onPressed: () {
                     if (state is GameLoaded) {
@@ -87,16 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: RefreshIndicator(
               onRefresh: () async {
-                print('Pulled to refresh');
+                //print('Pulled to refresh');
                 // Trigger a refresh by re-fetching games
                 context.read<GameBloc>().add(RefreshGames());
                 await Future.delayed(const Duration(seconds: 1));
               },
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
-                  print('What state: $state');
+                  //print('What state: $state');
                   // Show a refresh indicator overlay if refreshing
-                  final bool isRefreshing = state is GameLoaded && (state.isRefreshing ?? false);
+                  final bool isRefreshing =
+                      state is GameLoaded && (state.isRefreshing ?? false);
                   return Stack(
                     children: [
                       SingleChildScrollView(
@@ -200,7 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             color: Colors.black.withOpacity(0.2),
                             child: Center(
-                              child: LottieBuilder.asset('assets/animations/refresh.json', height: 80),
+                              child: LottieBuilder.asset(
+                                'assets/animations/refresh.json',
+                                height: 80,
+                              ),
                             ),
                           ),
                         ),
@@ -220,37 +229,43 @@ class _HomeScreenState extends State<HomeScreen> {
     if (state is GameLoading) {
       return const FeaturedGamesShimmer();
     } else if (state is GameLoaded && state.isRefreshing == true) {
-      return Center(child: LottieBuilder.asset('assets/animations/refresh.json', height: 80));
+      return Center(
+        child: LottieBuilder.asset(
+          'assets/animations/refresh.json',
+          height: 80,
+        ),
+      );
     } else if (state is GameLoaded && state.gameData.featuredGames.isNotEmpty) {
+      final games = state.gameData.featuredGames
+          .where((game) => game.isMobile == 'True')
+          .toList();
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: List.generate(state.gameData.featuredGames.length, (index) {
-            final game = state.gameData.featuredGames[index];
+          children: List.generate(games.length, (index) {
+            //print('List games: ${games[index].toJson()}');
+            final game = games[index];
             final iconIndex = index % staticIcons.length;
-            print(
-              "Game Image Url: ${state.gameData.featuredGames[index].gameUrl}",
-            );
             return buildGameContainer(
               state.gameData.featuredGames.isNotEmpty
-                  ? state.gameData.featuredGames[index].imageUrl.toString()
+                  ? game.imageUrl.toString()
                   : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
               AppStyles.darkPrimaryColor,
-              state.gameData.featuredGames[index].backgroundImg.isNotEmpty
-                  ? state.gameData.featuredGames[index].backgroundImg
+              game.backgroundImg.isNotEmpty
+                  ? game.backgroundImg
                   : 'assets/images/${staticBgs[iconIndex]}.png',
               () => _navigateToGame(
                 context,
-                state.gameData.featuredGames.isNotEmpty
-                    ? state.gameData.featuredGames[index].imageUrl
+                games.isNotEmpty
+                    ? game.imageUrl
                     : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                state.gameData.featuredGames[index].backgroundImg.isNotEmpty
-                    ? state.gameData.featuredGames[index].backgroundImg
+                games.isNotEmpty
+                    ? game.backgroundImg
                     : 'assets/images/${staticBgs[iconIndex]}.png',
-                state.gameData.featuredGames[index].gameUrl,
-                state.gameData.featuredGames[index].isLandScape,
+                game.gameUrl,
+                game.isLandScape,
                 'featuredGame',
-                state.gameData.featuredGames
+                state.gameData.featuredGames,
               ),
             );
           }),
@@ -274,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 staticUrls[index],
                 staticUrls[index].contains("5164") ? "true" : "false",
                 'featuredGames',
-                []
+                [],
               ),
             ),
           ),
@@ -288,8 +303,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (state is GameLoading) {
       return const NewestGamesShimmer();
     } else if (state is GameLoaded && state.isRefreshing == true) {
-      return Center(child: LottieBuilder.asset('assets/animations/refresh.json', height: 80));
+      return Center(
+        child: LottieBuilder.asset(
+          'assets/animations/refresh.json',
+          height: 80,
+        ),
+      );
     } else if (state is GameLoaded && state.gameData.newGames.isNotEmpty) {
+      final games = state.gameData.newGames
+          .where((game) => game.isMobile == 'True')
+          .toList();
       return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -299,23 +322,23 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisSpacing: 12.w,
           //childAspectRatio: 0.50,
         ),
-        itemCount: state.gameData.newGames.length,
+        itemCount: games.length,
         itemBuilder: (context, index) {
-          final game = state.gameData.newGames[index];
+          final game = games[index];
           final iconIndex = index % staticIcons.length;
           return GestureDetector(
             onTap: () => _navigateToGame(
               context,
               state.gameData.newGames.isNotEmpty
-                  ? state.gameData.newGames[index].imageUrl
+                  ? game.imageUrl
                   : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
-              state.gameData.newGames[index].backgroundImg.isNotEmpty
-                  ? state.gameData.newGames[index].backgroundImg
+              game.backgroundImg.isNotEmpty
+                  ? game.backgroundImg
                   : 'assets/images/${staticBgs[iconIndex]}.png',
               game.gameUrl,
-              state.gameData.newGames[index].isLandScape,
+              game.isLandScape,
               'newestgame',
-              state.gameData.newGames
+              state.gameData.newGames,
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -368,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
               staticUrls[index],
               staticUrls[index].contains("5164") ? "true" : "false",
               'newestgames',
-              []
+              [],
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -397,11 +420,19 @@ class _HomeScreenState extends State<HomeScreen> {
     if (state is GameLoading) {
       return const NewestGamesShimmer();
     } else if (state is GameLoaded && state.isRefreshing == true) {
-      return Center(child: LottieBuilder.asset('assets/animations/refresh.json', height: 80));
+      return Center(
+        child: LottieBuilder.asset(
+          'assets/animations/refresh.json',
+          height: 80,
+        ),
+      );
     } else if (state is GameLoaded && state.gameData.games.isNotEmpty) {
+      final games = state.gameData.games
+          .where((game) => game.isMobile == 'True')
+          .toList();
       return Column(
-        children: List.generate(state.gameData.games.length, (index) {
-          final game = state.gameData.games[index];
+        children: List.generate(games.length, (index) {
+          final game = games[index];
           final iconIndex = index % staticIcons.length;
           return AllGameWidget(
             backgroundImg: game.backgroundImg.isNotEmpty
@@ -425,6 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
               'allgames',
               state.gameData.games,
             ),
+            desc: game.description,
           );
         }),
       );
@@ -443,8 +475,9 @@ class _HomeScreenState extends State<HomeScreen> {
               staticUrls[index],
               staticUrls[index].contains("5164") ? "true" : "false",
               'allgames',
-              []
+              [],
             ),
+            desc: '',
           );
         }),
       );
