@@ -12,10 +12,10 @@ class GameData {
   factory GameData.fromJson(Map<String, dynamic> json) {
     return GameData(
       games: (json['games'] as List).map((e) => Game.fromJson(e)).toList(),
-      featuredGames: (json['featured_games'] as List)
+      featuredGames: (json['featured_games'] as List? ?? [])
           .map((e) => FeaturedGame.fromJson(e))
           .toList(),
-      newGames: (json['new_games'] as List)
+      newGames: (json['new_games'] as List? ?? [])
           .map((e) => Game.fromJson(e))
           .toList(),
     );
@@ -63,13 +63,13 @@ class Game {
       gameId: json['game_id'] ?? 0,
       slug: json['slug'] ?? '',
       isLandScape: json['is_landscape'] ?? '',
+      isMobile: json['is_mobile'] ?? '',
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       imageUrl: json['image_url'] ?? '',
-      backgroundImg: json['background_url'] ?? '',
       gameUrl: json['game_url'] ?? '',
+      backgroundImg: json['background_url'] ?? '',
       createdAt: json['created_at'] ?? '',
-      isMobile: json['is_mobile'] ?? '',
     );
   }
 
@@ -79,13 +79,13 @@ class Game {
       'game_id': gameId,
       'slug': slug,
       'is_landscape': isLandScape,
+      'is_mobile': isMobile,
       'name': name,
       'description': description,
       'image_url': imageUrl,
-      'background_url': backgroundImg,
       'game_url': gameUrl,
+      'background_url': backgroundImg,
       'created_at': createdAt,
-      'is_mobile': isMobile
     };
   }
 }

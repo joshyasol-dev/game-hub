@@ -14,7 +14,6 @@ import 'package:bybet_mini/common/widgets/shimmer_loader.dart';
 //import 'package:bybet_mini/data/models/game_model.dart';
 import 'package:bybet_mini/data/repository/game_repo.dart';
 import 'package:bybet_mini/presentation/game/web_game_screen.dart';
-import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -95,125 +94,184 @@ class _HomeScreenState extends State<HomeScreen> {
                 //print('Pulled to refresh');
                 // Trigger a refresh by re-fetching games
                 context.read<GameBloc>().add(RefreshGames());
-                await Future.delayed(const Duration(seconds: 1));
+                await Future.delayed(const Duration(seconds: 3));
               },
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
-                  //print('What state: $state');
-                  // Show a refresh indicator overlay if refreshing
                   final bool isRefreshing =
                       state is GameLoaded && (state.isRefreshing ?? false);
-                  return Stack(
-                    children: [
-                      SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 24.h),
-                            // Ads Banner
-                            Container(
-                              decoration: BoxDecoration(
-                                image: const DecorationImage(
-                                  image: AssetImage('assets/images/ads.png'),
-                                  fit: BoxFit.fitWidth,
-                                ),
-                                borderRadius: BorderRadius.circular(12.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 8.r,
-                                    offset: Offset(0, 4.h),
-                                  ),
-                                ],
-                                border: Border(
-                                  top: BorderSide(
-                                    color: AppStyles.darkPrimaryColor,
-                                    width: 3.5,
-                                  ),
+                  if (isRefreshing) {
+                    // Show shimmer for all sections during refresh
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 24.h),
+                          // Ads shimmer
+                          const AdsShimmer(),
+                          SizedBox(height: 24.h),
+                          // Featured shimmer
+                          Row(
+                            children: [
+                              Icon(
+                                LucideIcons.chess_queen,
+                                color: AppStyles.darkPrimaryColor,
+                              ),
+                              Text(
+                                ' Featured',
+                                style: TextStyle(
+                                  color: AppStyles.darkPrimaryColor,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              height: 120.h,
-                              width: double.infinity,
-                            ),
-                            SizedBox(height: 24.h),
-                            // Featured Section
-                            Row(
-                              children: [
-                                Icon(
-                                  LucideIcons.chess_queen,
+                            ],
+                          ),
+                          SizedBox(height: 6.h),
+                          const FeaturedGamesShimmer(),
+                          SizedBox(height: 24.h),
+                          // Newest shimmer
+                          Row(
+                            children: [
+                              Icon(
+                                LucideIcons.dice_5,
+                                color: AppStyles.darkPrimaryColor,
+                                fill: 1.0,
+                              ),
+                              Text(
+                                ' Newest Games',
+                                style: TextStyle(
                                   color: AppStyles.darkPrimaryColor,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                Text(
-                                  ' Featured',
-                                  style: TextStyle(
-                                    color: AppStyles.darkPrimaryColor,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 6.h),
-                            _buildFeaturedGamesSection(state),
-                            SizedBox(height: 24.h),
-                            // Newest Games Section
-                            Row(
-                              children: [
-                                Icon(
-                                  LucideIcons.dice_5,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          const NewestGamesShimmer(),
+                          SizedBox(height: 24.h),
+                          Row(
+                            children: [
+                              Icon(
+                                LucideIcons.gamepad_2,
+                                color: AppStyles.darkPrimaryColor,
+                                fill: 1.0,
+                              ),
+                              Text(
+                                ' All Games',
+                                style: TextStyle(
                                   color: AppStyles.darkPrimaryColor,
-                                  fill: 1.0,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                Text(
-                                  ' Newest Games',
-                                  style: TextStyle(
-                                    color: AppStyles.darkPrimaryColor,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12.h),
-                            _buildNewestGamesSection(state),
-                            SizedBox(height: 24.h),
-                            Row(
-                              children: [
-                                Icon(
-                                  LucideIcons.gamepad_2,
-                                  color: AppStyles.darkPrimaryColor,
-                                  fill: 1.0,
-                                ),
-                                Text(
-                                  ' All Games',
-                                  style: TextStyle(
-                                    color: AppStyles.darkPrimaryColor,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12.h),
-                            _buildAllGames(state),
-                            SizedBox(height: 24.h),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          const NewestGamesShimmer(),
+                          SizedBox(height: 24.h),
+                        ],
                       ),
-                      if (isRefreshing)
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.black.withOpacity(0.2),
-                            child: Center(
-                              child: LottieBuilder.asset(
-                                'assets/animations/refresh.json',
-                                height: 80,
+                    );
+                  }
+                  // Not refreshing: show normal content
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 24.h),
+                        // Ads Banner
+                        Container(
+                          decoration: BoxDecoration(
+                            image: const DecorationImage(
+                              image: AssetImage('assets/images/ads.png'),
+                              fit: BoxFit.fitWidth,
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                            border: Border(
+                              top: BorderSide(
+                                color: AppStyles.darkPrimaryColor,
+                                width: 3.5,
                               ),
                             ),
                           ),
+                          height: 120.h,
+                          width: double.infinity,
                         ),
-                    ],
+                        SizedBox(height: 24.h),
+                        // Featured Section
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.chess_queen,
+                              color: AppStyles.darkPrimaryColor,
+                            ),
+                            Text(
+                              ' Featured',
+                              style: TextStyle(
+                                color: AppStyles.darkPrimaryColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6.h),
+                        _buildFeaturedGamesSection(state),
+                        SizedBox(height: 24.h),
+                        // Newest Games Section
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.dice_5,
+                              color: AppStyles.darkPrimaryColor,
+                              fill: 1.0,
+                            ),
+                            Text(
+                              ' Newest Games',
+                              style: TextStyle(
+                                color: AppStyles.darkPrimaryColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+                        _buildNewestGamesSection(state),
+                        SizedBox(height: 24.h),
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.gamepad_2,
+                              color: AppStyles.darkPrimaryColor,
+                              fill: 1.0,
+                            ),
+                            Text(
+                              ' All Games',
+                              style: TextStyle(
+                                color: AppStyles.darkPrimaryColor,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+                        _buildAllGames(state),
+                        SizedBox(height: 24.h),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -226,15 +284,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Build featured games section with dynamic or static data
   Widget _buildFeaturedGamesSection(GameState state) {
-    if (state is GameLoading) {
+    if (state is GameLoading || (state is GameLoaded && state.isRefreshing == true)) {
       return const FeaturedGamesShimmer();
-    } else if (state is GameLoaded && state.isRefreshing == true) {
-      return Center(
-        child: LottieBuilder.asset(
-          'assets/animations/refresh.json',
-          height: 80,
-        ),
-      );
     } else if (state is GameLoaded && state.gameData.featuredGames.isNotEmpty) {
       final games = state.gameData.featuredGames
           .where((game) => game.isMobile == 'True')
@@ -300,15 +351,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Build newest games section with dynamic or static data
   Widget _buildNewestGamesSection(GameState state) {
-    if (state is GameLoading) {
+    if (state is GameLoading || (state is GameLoaded && state.isRefreshing == true)) {
       return const NewestGamesShimmer();
-    } else if (state is GameLoaded && state.isRefreshing == true) {
-      return Center(
-        child: LottieBuilder.asset(
-          'assets/animations/refresh.json',
-          height: 80,
-        ),
-      );
     } else if (state is GameLoaded && state.gameData.newGames.isNotEmpty) {
       final games = state.gameData.newGames
           .where((game) => game.isMobile == 'True')
@@ -417,15 +461,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAllGames(GameState state) {
-    if (state is GameLoading) {
+    if (state is GameLoading || (state is GameLoaded && state.isRefreshing == true)) {
       return const NewestGamesShimmer();
-    } else if (state is GameLoaded && state.isRefreshing == true) {
-      return Center(
-        child: LottieBuilder.asset(
-          'assets/animations/refresh.json',
-          height: 80,
-        ),
-      );
     } else if (state is GameLoaded && state.gameData.games.isNotEmpty) {
       final games = state.gameData.games
           .where((game) => game.isMobile == 'True')
