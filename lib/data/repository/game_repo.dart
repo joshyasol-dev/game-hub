@@ -15,10 +15,28 @@ class GameRepository {
     try {
       final response = await _dioClient.get(
         gameLibEndpoint,
-        // queryParameters: {
-        //   'featured_limit': featuredLimit,
-        //   'new_limit': newLimit,
-        // },
+        //queryParameters: {
+          //'featured_limit': defaultFeaturedLimit,
+          //'new_limit': newLimit,
+        //},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load games: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      // Error is already handled by DioClient interceptor
+      // Re-throw with additional context if needed
+      throw Exception('Error fetching games: $e\nStack trace: $stackTrace');
+    }
+  }
+
+  Future<Map<String,dynamic>> getRefresh() async{
+    try {
+      final response = await _dioClient.get(
+        gameLibEndpoint,
       );
 
       if (response.statusCode == 200) {

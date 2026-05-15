@@ -53,16 +53,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   Future<void> _refreshGames(RefreshGames event, Emitter<GameState> emit) async {
     try {
       print('Entered _refreshGames');
+      
+      // If already loaded, show refreshing state with existing data
       if (state is GameLoaded) {
         final currentState = state as GameLoaded;
         emit(currentState.copyWith(isRefreshing: true));
 
         print('Calling getGames in _refreshGames...');
-        final response = await gameRepository.getGames(
-          featuredLimit: defaultFeaturedLimit,
-          newLimit: defaultNewLimit,
+        final response = await gameRepository.getRefresh(
         );
-        print('Gamees: $response');
+        print('Games: $response');
 
         if (!response.containsKey('data')) {
           throw Exception('Invalid API response');
@@ -73,25 +73,37 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         emit(GameLoaded(gameData, isRefreshing: false));
       } else {
+        // If not loaded yet, first emit loading state
         emit(const GameLoading());
+        
         print('Calling getGames in _refreshGames (not loaded)...');
         final response = await gameRepository.getGames(
           featuredLimit: defaultFeaturedLimit,
           newLimit: defaultNewLimit,
         );
-        print('Gamees: $response');
+        print('Games: $response');
+        
         if (!response.containsKey('data')) {
           throw Exception('Invalid API response');
         }
+        
         final data = response['data'] as Map<String, dynamic>;
         final gameData = GameData.fromJson(data);
         print('${gameData.toJson()}');
-        emit(GameLoaded(gameData));
+        
+        emit(GameLoaded(gameData, isRefreshing: false));
       }
     } catch (e, stack) {
       print('Error in _refreshGames: $e\n$stack');
-      emit(GameError(e.toString()));
+      
+      // If we have existing data, preserve it with error message
+      if (state is GameLoaded) {
+        final currentState = state as GameLoaded;
+        emit(currentState.copyWith(isRefreshing: false));
+      } else {
+        emit(GameError(e.toString()));
+      }
     }
-    print('Current state: $state');
+    //print('Current state: $state');
   }
 }

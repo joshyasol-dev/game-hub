@@ -45,6 +45,8 @@ class _WebGameScreenState extends State<WebGameScreen> {
   String? _lastError;
 
   late String _currentUrl;
+  late String _currentGameIcon;
+  late String _currentGameBackground;
 
   bool? _screenOrientation; // null means use widget.islandscape
 
@@ -62,6 +64,9 @@ class _WebGameScreenState extends State<WebGameScreen> {
   void initState() {
     super.initState();
     _currentUrl = _getGameUrl();
+    _currentGameIcon = widget.loadingIcon ?? 'assets/icons/bf_icon.png';
+    _currentGameBackground =
+        widget.backgroundImage ?? 'assets/images/hammer_bg.png';
     if (_isSupportedPlatform) {
       _initializeWebView();
       _setPortraitFullscreen();
@@ -191,8 +196,14 @@ class _WebGameScreenState extends State<WebGameScreen> {
     // Update orientation based on selected game, fallback to portrait if invalid
     final parsed = selectedGame.isLandScape?.toString().toLowerCase();
     final isLandscape = parsed == 'true';
+
     setState(() {
       _screenOrientation = isLandscape;
+      // Update loading screen icon and background based on selected game
+      _currentGameIcon = selectedGame.imageUrl;
+      _currentGameBackground = selectedGame.backgroundImg.isNotEmpty
+          ? selectedGame.backgroundImg
+          : widget.backgroundImage ?? 'assets/images/hammer_bg.png';
     });
     //print("Is LandScape: $parsed");
     await _reloadCurrentUrl();
@@ -225,11 +236,8 @@ class _WebGameScreenState extends State<WebGameScreen> {
               Positioned.fill(
                 child: IgnorePointer(
                   child: _LoadingScreen(
-                    backgroundImage:
-                        widget.backgroundImage ?? 'assets/images/hammer_bg.png',
-                    icon: widget.loadingIcon!.isNotEmpty
-                        ? widget.loadingIcon!
-                        : 'assets/icons/bf_icon.png',
+                    backgroundImage: _currentGameBackground,
+                    icon: _currentGameIcon,
                     progress: _progress,
                   ),
                 ),
@@ -318,7 +326,7 @@ class _WebGameScreenState extends State<WebGameScreen> {
           ),
           child: Icon(
             LucideIcons.gamepad_2,
-            size: widget.islandscape =='true'? 16.sp : 24.sp,
+            size: widget.islandscape == 'true' ? 16.sp : 24.sp,
             color: AppStyles.textDarkModeColor,
           ),
         ),
@@ -441,18 +449,22 @@ Future<Game?> showGames(BuildContext context, List<Game> games) {
     context: context,
     builder: (dialogContext) {
       final gamed = games.where((game) => game.isMobile == 'True').toList();
-      final isLandscape = MediaQuery.of(dialogContext).orientation == Orientation.landscape;
+      final isLandscape =
+          MediaQuery.of(dialogContext).orientation == Orientation.landscape;
       return AlertDialog(
         backgroundColor: AppStyles.darkBackground,
         titleTextStyle: TextStyle(
-          fontSize: isLandscape? 12.sp : 16.sp,
+          fontSize: isLandscape ? 12.sp : 16.sp,
           color: AppStyles.darkPrimaryColor,
           fontWeight: FontWeight.w600,
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Game List', style: TextStyle(fontSize: isLandscape? 8.sp : 14.sp)),
+            Text(
+              'Game List',
+              style: TextStyle(fontSize: isLandscape ? 8.sp : 14.sp),
+            ),
             GestureDetector(
               onTap: () {
                 Navigator.pop(dialogContext);
@@ -472,21 +484,21 @@ Future<Game?> showGames(BuildContext context, List<Game> games) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(12.r),
         ),
-        contentPadding: .symmetric(vertical: 12.h,horizontal: 24.w),
+        contentPadding: .symmetric(vertical: 12.h, horizontal: 24.w),
         content: SizedBox(
-          width:  isLandscape? 160.w : 320.w,
+          width: isLandscape ? 160.w : 320.w,
           height: 260.h,
           child: ListView.separated(
             itemBuilder: (BuildContext itemContext, int index) {
               final gameList = gamed[index];
               return ListTile(
                 leading: Container(
-                  width: isLandscape? 25.w: 50.w,
+                  width: isLandscape ? 25.w : 50.w,
                   height: 80.h,
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: AppStyles.darkPrimaryColor,
-                      width: isLandscape? 2.w : 3.w,
+                      width: isLandscape ? 2.w : 3.w,
                     ),
                     borderRadius: BorderRadius.circular(4.r),
                     image: DecorationImage(

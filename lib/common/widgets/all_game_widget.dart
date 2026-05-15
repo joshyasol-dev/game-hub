@@ -81,7 +81,7 @@ class AllGameWidget extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppStyles.darkPrimaryColor,
+                          color: AppStyles.primaryColor,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,

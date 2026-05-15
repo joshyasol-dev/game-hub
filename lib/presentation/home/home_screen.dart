@@ -38,6 +38,26 @@ class _HomeScreenState extends State<HomeScreen> {
     'http://10.80.4.28:5167/',
   ];
 
+  /// Wait for refresh to complete by listening to state changes
+  Future<void> _waitForRefreshCompletion() async {
+    final bloc = context.read<GameBloc>();
+    final initialState = bloc.state;
+
+    // Wait until isRefreshing becomes false
+    while (true) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      final currentState = bloc.state;
+
+      if (currentState is GameLoaded && !currentState.isRefreshing) {
+        // Refresh completed successfully
+        break;
+      } else if (currentState is GameError) {
+        // Refresh failed
+        break;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -91,10 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: RefreshIndicator(
               onRefresh: () async {
-                //print('Pulled to refresh');
-                // Trigger a refresh by re-fetching games
                 context.read<GameBloc>().add(RefreshGames());
-                await Future.delayed(const Duration(seconds: 3));
+                await _waitForRefreshCompletion();
               },
               child: BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
@@ -119,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: AppStyles.darkPrimaryColor,
                               ),
                               Text(
-                                ' Featured',
+                                ' Featured (Total Players: ${state.gameData.featuredGames.length})',
                                 style: TextStyle(
                                   color: AppStyles.darkPrimaryColor,
                                   fontSize: 16.sp,
@@ -140,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fill: 1.0,
                               ),
                               Text(
-                                ' Newest Games',
+                                ' Newest Game(Total Players: ${state.gameData.newGames.length})',
                                 style: TextStyle(
                                   color: AppStyles.darkPrimaryColor,
                                   fontSize: 16.sp,
@@ -160,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fill: 1.0,
                               ),
                               Text(
-                                ' All Games',
+                                ' All Games (Total Games: ${state.gameData.games.length})',
                                 style: TextStyle(
                                   color: AppStyles.darkPrimaryColor,
                                   fontSize: 16.sp,
@@ -210,23 +228,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: 24.h),
                         // Featured Section
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.chess_queen,
-                              color: AppStyles.darkPrimaryColor,
-                            ),
-                            Text(
-                              ' Featured',
-                              style: TextStyle(
-                                color: AppStyles.darkPrimaryColor,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 6.h),
                         _buildFeaturedGamesSection(state),
                         SizedBox(height: 24.h),
                         // Newest Games Section
@@ -284,43 +285,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Build featured games section with dynamic or static data
   Widget _buildFeaturedGamesSection(GameState state) {
-    if (state is GameLoading || (state is GameLoaded && state.isRefreshing == true)) {
+    if (state is GameLoading ||
+        (state is GameLoaded && state.isRefreshing == true)) {
       return const FeaturedGamesShimmer();
     } else if (state is GameLoaded && state.gameData.featuredGames.isNotEmpty) {
+      print('Featured games count: ${state.gameData.featuredGames.length}');
+      print(
+        'Featured games raw: ${state.gameData.featuredGames.map((g) => g.toJson()).toList()}',
+      );
       final games = state.gameData.featuredGames
           .where((game) => game.isMobile == 'True')
           .toList();
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(games.length, (index) {
-            //print('List games: ${games[index].toJson()}');
-            final game = games[index];
-            final iconIndex = index % staticIcons.length;
-            return buildGameContainer(
-              state.gameData.featuredGames.isNotEmpty
-                  ? game.imageUrl.toString()
-                  : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
-              AppStyles.darkPrimaryColor,
-              game.backgroundImg.isNotEmpty
-                  ? game.backgroundImg
-                  : 'assets/images/${staticBgs[iconIndex]}.png',
-              () => _navigateToGame(
-                context,
-                games.isNotEmpty
-                    ? game.imageUrl
-                    : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
-                games.isNotEmpty
-                    ? game.backgroundImg
-                    : 'assets/images/${staticBgs[iconIndex]}.png',
-                game.gameUrl,
-                game.isLandScape,
-                'featuredGame',
-                state.gameData.featuredGames,
+      print('Featured games: ${games.map((g) => g.toJson()).toList()}');
+      return Column(
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.chess_queen, color: AppStyles.darkPrimaryColor),
+              Text(
+                ' Featured ',
+                style: TextStyle(
+                  color: AppStyles.darkPrimaryColor,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            );
-          }),
-        ),
+            ],
+          ),
+          SizedBox(height: 6.h),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(games.length < 3 ? games.length : 3, (
+                index,
+              ) {
+                //print('List games: ${games[index].toJson()}');
+                final game = games[index];
+                final iconIndex = index % staticIcons.length;
+                return buildGameContainer(
+                  state.gameData.featuredGames.isNotEmpty
+                      ? game.imageUrl.toString()
+                      : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
+                  AppStyles.darkPrimaryColor,
+                  game.backgroundImg.isNotEmpty
+                      ? game.backgroundImg
+                      : 'assets/images/${staticBgs[iconIndex]}.png',
+                  () => _navigateToGame(
+                    context,
+                    games.isNotEmpty
+                        ? game.imageUrl
+                        : 'assets/icons/${staticIcons[iconIndex]}_icon.png',
+                    games.isNotEmpty
+                        ? game.backgroundImg
+                        : 'assets/images/${staticBgs[iconIndex]}.png',
+                    game.gameUrl,
+                    game.isLandScape,
+                    'featuredGame',
+                    state.gameData.featuredGames,
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
       );
     } else {
       // Error state or initial state - show static games
@@ -351,7 +378,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Build newest games section with dynamic or static data
   Widget _buildNewestGamesSection(GameState state) {
-    if (state is GameLoading || (state is GameLoaded && state.isRefreshing == true)) {
+    if (state is GameLoading ||
+        (state is GameLoaded && state.isRefreshing == true)) {
       return const NewestGamesShimmer();
     } else if (state is GameLoaded && state.gameData.newGames.isNotEmpty) {
       final games = state.gameData.newGames
@@ -366,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisSpacing: 12.w,
           //childAspectRatio: 0.50,
         ),
-        itemCount: games.length,
+        itemCount: games.length < 4 ? games.length : 4,
         itemBuilder: (context, index) {
           final game = games[index];
           final iconIndex = index % staticIcons.length;
@@ -461,7 +489,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAllGames(GameState state) {
-    if (state is GameLoading || (state is GameLoaded && state.isRefreshing == true)) {
+    if (state is GameLoading ||
+        (state is GameLoaded && state.isRefreshing == true)) {
       return const NewestGamesShimmer();
     } else if (state is GameLoaded && state.gameData.games.isNotEmpty) {
       final games = state.gameData.games
